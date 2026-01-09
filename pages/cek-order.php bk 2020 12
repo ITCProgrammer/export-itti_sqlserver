@@ -1,0 +1,439 @@
+<?php
+$ganti= $_POST[template];
+?>
+<?php	
+$qry=mssql_query("SELECT TOP 1 a.ID,CAST(d.[PONumber] AS VARCHAR(8000)) AS PONumber,
+CAST(a.[SalesPersonName] AS VARCHAR(8000)) AS SalesPerson,
+CAST(e.[PartnerName] AS VARCHAR(8000)) AS Buyer,
+CAST(j.[PartnerName] AS VARCHAR(8000)) AS Consignee,
+CAST(j.[Address] AS VARCHAR(8000)) AS Consignee_adr,
+CAST(j.[PhoneNumber] AS VARCHAR(8000)) As Consignee_phone,
+CAST(m.[CountryName] AS VARCHAR(8000)) AS Consignee_c, 
+CAST(k.[CountryName] AS VARCHAR(8000)) AS Destination,
+CAST(f.[PartnerName] AS VARCHAR(8000)) AS Messr,
+CAST(f.[Address] AS VARCHAR(8000)) AS Messr_adr,
+CAST(f.[PhoneNumber] AS VARCHAR(8000)) AS Messr_phone,
+CAST(l.[CountryName] AS VARCHAR(8000)) AS Messr_c,  
+CAST(c.[Documentno] AS VARCHAR(8000)) AS OrderNO,
+CAST(h.[Description] AS VARCHAR(8000)) AS Payment,
+CAST(g.[Description] AS VARCHAR(8000)) AS Term,
+CONVERT(varchar(10), i.[DeliveryDate], 121) AS TglDelivery
+FROM SalesOrders a 
+LEFT JOIN SODetails b ON a.ID=b.SOID
+LEFT JOIN sodetailsadditional d ON d.sodid=b.id
+LEFT JOIN JobOrders c ON a.ID=c.SOID
+LEFT JOIN Partners e ON a.BuyerID=e.ID
+LEFT JOIN Partners f ON a.CustomerID=f.ID
+LEFT JOIN Incoterms g ON a.IncotermID=g.ID
+LEFT JOIN PaymentTerms h ON a.PaymentTermID=h.ID
+LEFT JOIN SODelivery i ON a.ID=i.SOID
+LEFT JOIN Partners j ON i.ConsigneeID=j.ID
+LEFT JOIN Countries k ON i.CountryID=k.ID
+LEFT JOIN Countries l ON f.CountryID=l.ID
+LEFT JOIN Countries m ON j.CountryID=m.ID
+WHERE a.SONumber='$_GET[pi]'");
+	$data=mssql_fetch_array($qry);
+?>
+<?php
+   
+$sqlCek=mysql_query("SELECT * FROM tbl_exim_pim WHERE no_pi='$_GET[pi]' LIMIT 1");
+$cek=mysql_num_rows($sqlCek);
+?>
+
+<div class="box box-info">
+	<form class="form-horizontal" action="" method="post" enctype="multipart/form-data" name="form1">
+		<div class="box-header with-border">
+			<h3 class="box-title">Cek Order</h3>
+			<div class="box-tools pull-right">
+				<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
+			</div>
+		</div>
+		<?php
+    $sql11=mysql_query(" SELECT * FROM tbl_exim_pim ");
+    $r11=mysql_fetch_array($sql11);
+     
+     ?>
+		<div class="box-body">
+			<div class="col-md-6">
+			<div class="form-group">
+				<label for="no_pi" class="col-sm-2 control-label">No PI</label>
+				<div class="col-sm-4">
+					<input name="no_pi" type="text" class="form-control" id="no_pi" onchange="window.location='?p=Cek-Order&amp;pi='+this.value" value="<?php echo strtoupper($_GET[pi]);?>" placeholder="No Pi">
+				</div>
+			</div>			
+			</div>		
+		<div class="col-md-6">				
+			<div class="form-group">
+				<label for="payment" class="col-sm-3 control-label">Templete</label>
+				<div class="col-sm-2">
+				  <select name="template" id="template" class="form-control">
+				    <option value="1" <?php if($ganti=="1"){echo "SELECTED";}?>>1</option>
+				    <option value="2" <?php if($ganti=="2"){echo "SELECTED";}?>>2</option>
+			      </select>				  
+				</div>
+				<div class="col-sm-2"><input type="submit" name="ganti" id="ganti" value="ganti" class="btn btn-default pull-right"/></div>
+			</div>	
+			</div>
+		</div>		
+		<!-- /.box-footer -->
+
+
+	</form>
+</div>
+<div class="row">
+	<div class="col-xs-12">
+		<div class="box">
+			<div class="box-header with-border">
+
+			</div>
+			<div class="box-body">
+			<?php $qry3=mssql_query("
+	SELECT
+	jo.DocumentNo,
+	so.PONumber,
+    SODA.PONumber as POADD,	
+	ISNULL(pmp.ProductCode,pm.hangerno) AS ProductCode,
+	pm.Color,
+	pm.ColorNo,
+	SOD.UnitPrice,
+	UD.UnitName,
+	so.SONumber,
+	SOD.Weight,
+	SOD.QuantityToOrder
+FROM
+	SODetails SOD
+LEFT JOIN SalesOrders so ON SOD.SOID = so.ID
+LEFT JOIN SODetailsAdditional SODA ON SODA.SODID=SOD.ID
+LEFT JOIN UnitDescription UD ON UD.id = SOD.UnitID
+LEFT JOIN JobOrders jo ON jo.SOID = so.ID
+LEFT JOIN Partners p ON p.ID = so.CustomerID
+LEFT JOIN ProductMaster pm ON pm.ID = SOD.ProductID
+LEFT JOIN ProductPartner pmp ON sod.ProductID = pmp.ProductID
+AND so.BuyerID = pmp.PartnerID
+WHERE
+	so.SONumber LIKE '$_GET[pi]'
+ORDER BY
+	SOD.ID ASC"); ?>
+<?php if($_POST[template]=="" or $_POST[template]=="1"){?>				
+			  <table id="example5" class="table table-bordered table-hover table-striped" width="100%">
+					<thead class="bg-red">
+						<tr>
+						  <th width="144" rowspan="2">
+							  <div align="center">PI</div></th>
+						  <th width="122" rowspan="2">
+							  <div align="center">Order</div></th>
+						  <th width="145" rowspan="2">
+							  <div align="center">
+								  <div align="center">PO</div></th>
+						  <th width="116" rowspan="2">
+							  <div align="center">Item</div></th>
+						  <th width="156" rowspan="2">
+							  <div align="center">Color</div></th>
+						  <th width="113" rowspan="2">
+							  <div align="center">Size</div></th>
+						  <th width="113" rowspan="2"><div align="center">HS Code</div></th>
+						  <th colspan="2"><div align="center">PRICE</div></th>
+						  <th colspan="3"><div align="center">ORDER</div></th>
+						  <th colspan="3"><div align="center">KK</div></th>
+						  <th colspan="3"><div align="center">BALANCE</div></th>
+					  </tr>
+						<tr>
+							<th width="56">
+								<div align="center">USD</div>
+							</th>
+							<th width="56"><div align="center">Per</div></th>
+							<th width="60"><div align="center">KG</div></th>
+							<th width="38"><div align="center">YD</div></th>
+							<th width="36">
+								<div align="center">PCS</div>
+							</th>
+							<th width="36"><div align="center">KGS</div></th>
+							<th width="36"><div align="center">YDS</div></th>
+							<th width="36"><div align="center">FOC</div></th>
+							<th width="36"><div align="center">KG</div></th>
+							<th width="36"><div align="center">YDS</div></th>
+							<th width="36"><div align="center">%</div></th>
+						</tr>
+					</thead>
+					<tbody>	
+					<?php 
+					$c=1;					
+					while($r=mssql_fetch_array($qry3)){
+					$bgcolor = ($c++ & 1) ? '#33CCFF' : '#FFCC99';
+					$sqlHS=mysql_query("SELECT hs_code FROM tbl_exim_code WHERE no_item='$r[ProductCode]' LIMIT 1");
+					$rHS=mysql_fetch_array($sqlHS);
+					$warn=str_replace("'","",trim($r[Color]));
+					if($r[POADD]==""){$po=$r[PONumber];}else{ $po=$r[POADD]; }	
+					$qryKK=mysql_query("SELECT
+	tbl_kite.no_lot,
+	tbl_kite.nokk,
+	sum(if( not detail_pergerakan_stok.sisa='FOC',detail_pergerakan_stok.weight,0)) as kgs,
+	sum(if( not detail_pergerakan_stok.sisa='FOC',detail_pergerakan_stok.yard_,0)) as yds,
+	sum(tmp_detail_kite.netto)as pcs,
+	detail_pergerakan_stok.pack,
+	count(detail_pergerakan_stok.weight) as jml_pack,
+	sum(if(detail_pergerakan_stok.sisa='FOC',detail_pergerakan_stok.weight,0)) as foc
+FROM
+	pergerakan_stok
+INNER JOIN detail_pergerakan_stok ON pergerakan_stok.id = detail_pergerakan_stok.id_stok
+INNER JOIN tmp_detail_kite ON tmp_detail_kite.id = detail_pergerakan_stok.id_detail_kj
+INNER JOIN tbl_kite ON tbl_kite.id = tmp_detail_kite.id_kite
+WHERE
+	(detail_pergerakan_stok.sisa !='FKTH' AND detail_pergerakan_stok.sisa !='TH' AND detail_pergerakan_stok.sisa !='SISA' AND typestatus='1'
+AND `tbl_kite`.`no_order`='$r[DocumentNo]' AND `tbl_kite`.`no_item`='$r[ProductCode]' AND `tbl_kite`.`warna`='$warn' AND `tbl_kite`.`no_po`='$po'
+ ) GROUP BY tbl_kite.no_order  
+ ORDER BY `pergerakan_stok`.`typestatus`,
+	`detail_pergerakan_stok`.`nokk`,
+	`detail_pergerakan_stok`.`no_roll` ASC");
+	$rKK=mysql_fetch_array($qryKK);	
+	if($r[UnitName]=="kg"){$qt=$r[QuantityToOrder];}else{$qt=$r[Weight];}					
+	$blKG=round($rKK[kgs]-$qt,2);
+	$blYD=round($rKK[yds]-$r[QuantityToOrder],2);					
+	if($r[UnitName]=="kg"){$pers=round(($rKK[kgs]/$qt)*100,2);}
+	if($r[UnitName]=="yard"){$persYD=round(($rKK[yds]/$r[QuantityToOrder])*100,2);}					
+					?>
+						<tr>
+							<td align="center">
+								<?php echo $r[SONumber]; ?>
+							</td>
+							<td align="center"><?php echo $r[DocumentNo]; ?></td>
+							<td align="center"><?php if($r[POADD]==""){echo $r[PONumber];}else{ echo $r[POADD]; } ?></td>
+							<td align="center"><?php echo $r[ProductCode]; ?></td>
+						  <td align="center"><a href="#" class="detail_order" id="<?php echo $r[DocumentNo]."item:".$r[ProductCode]."warna:".trim($warn)."po:".trim($po); ?>"><?php echo $r[Color]; ?></a></td>
+							<td>&nbsp;</td>
+							<td align="center"><?php echo $rHS[hs_code]; ?></td>
+						  <td align="right"><?php echo number_format($r[UnitPrice],"3",".",""); ?></td>
+							<td align="center"><?php if($r[UnitName]=="yard"){echo"YD";}elseif($r[UnitName]=="kg"){echo"KG";}elseif($r[UnitName]=="pc"){echo"PC";} ?></td>
+							<td align="right"><?php if($r[UnitName]=="kg"){echo $r[QuantityToOrder];}else{echo round($r[Weight],2);} ?>							  </td>
+							<td align="right"><?php if($r[UnitName]=="yard"){echo $r[QuantityToOrder];} ?>							  </td>
+							<td align="right">&nbsp;</td>
+							<td align="right"><?php if($r[UnitName]=="kg"){echo $rKK[kgs];} ?>						    </td>
+							<td align="right"><?php if($r[UnitName]=="yard"){echo $rKK[yds];} ?>						    </td>
+							<td align="right"><?php echo $rKK[foc]; ?></td>
+							<td align="right"><?php if($r[UnitName]=="kg"){echo $blKG;} ?>						    </td>
+						  <td align="right"><?php if($r[UnitName]=="yard"){echo $blYD;} ?></td>
+							<td align="right"><?php if($r[UnitName]=="kg"){if($pers==100){echo "<span class='label label-success'>".$pers."%</span>";}else if($pers>100){echo "<span class='label label-danger'>".$pers."%</span>";}else{ echo "<span class='label label-primary'>".$pers."%</span>";}}else if($r[UnitName]=="yard"){if($persYD==100){echo "<span class='label label-success'>".$persYD."%</span>";}else if($persYD>100){echo "<span class='label label-danger'>".$persYD."%</span>";}else{ echo "<span class='label label-primary'>".$persYD."%</span>";}} ?>						    </td>
+						</tr>
+						<?php
+  } ?>
+					</tbody>
+
+				</table>
+<?php }else if($_POST[template]=="2"){ ?>
+				<table id="example5" class="table table-bordered table-hover table-striped" width="100%">
+					<thead class="bg-red">
+						<tr>
+						  <th width="144" rowspan="2">
+							  <div align="center">PI</div></th>
+						  <th width="122" rowspan="2">
+							  <div align="center">Order</div></th>
+						  <th width="145" rowspan="2">
+							  <div align="center">
+								  <div align="center">PO</div></th>
+						  <th width="116" rowspan="2">
+							  <div align="center">Item</div></th>
+						  <th width="156" rowspan="2">
+							  <div align="center">Color</div></th>
+						  <th width="113" rowspan="2">
+							  <div align="center">Size</div></th>
+						  <th width="113" rowspan="2"><div align="center">HS Code</div></th>
+						  <th colspan="2"><div align="center">PRICE</div></th>
+						  <th colspan="3"><div align="center">ORDER</div></th>
+					  </tr>
+						<tr>
+							<th width="56">
+								<div align="center">USD</div>
+							</th>
+							<th width="56"><div align="center">Per</div></th>
+							<th width="60"><div align="center">KG</div></th>
+							<th width="38"><div align="center">YD</div></th>
+							<th width="36">
+								<div align="center">PCS</div>
+							</th>
+						</tr>
+					</thead>
+					<tbody>	
+					<?php 
+					$c=1;					
+					while($r=mssql_fetch_array($qry3)){
+					$bgcolor = ($c++ & 1) ? '#33CCFF' : '#FFCC99';
+					$sqlHS=mysql_query("SELECT hs_code FROM tbl_exim_code WHERE no_item='$r[ProductCode]' LIMIT 1");
+					$rHS=mysql_fetch_array($sqlHS);
+					$warn=str_replace("'","",trim($r[Color]));
+					if($r[POADD]==""){$po=$r[PONumber];}else{ $po=$r[POADD]; }	
+					$qryKK=mysql_query("SELECT
+	tbl_kite.no_lot,
+	tbl_kite.nokk,
+	sum(if( not detail_pergerakan_stok.sisa='FOC',detail_pergerakan_stok.weight,0)) as kgs,
+	sum(if( not detail_pergerakan_stok.sisa='FOC',detail_pergerakan_stok.yard_,0)) as yds,
+	sum(tmp_detail_kite.netto)as pcs,
+	detail_pergerakan_stok.pack,
+	count(detail_pergerakan_stok.weight) as jml_pack,
+	sum(if(detail_pergerakan_stok.sisa='FOC',detail_pergerakan_stok.weight,0)) as foc
+FROM
+	pergerakan_stok
+INNER JOIN detail_pergerakan_stok ON pergerakan_stok.id = detail_pergerakan_stok.id_stok
+INNER JOIN tmp_detail_kite ON tmp_detail_kite.id = detail_pergerakan_stok.id_detail_kj
+INNER JOIN tbl_kite ON tbl_kite.id = tmp_detail_kite.id_kite
+WHERE
+	(detail_pergerakan_stok.sisa !='FKTH' AND detail_pergerakan_stok.sisa !='TH' AND detail_pergerakan_stok.sisa !='SISA' AND typestatus='1'
+AND `tbl_kite`.`no_order`='$r[DocumentNo]' AND `tbl_kite`.`no_item`='$r[ProductCode]' AND `tbl_kite`.`warna`='$warn' AND `tbl_kite`.`no_po`='$po'
+ ) GROUP BY tbl_kite.no_order  
+ ORDER BY `pergerakan_stok`.`typestatus`,
+	`detail_pergerakan_stok`.`nokk`,
+	`detail_pergerakan_stok`.`no_roll` ASC");
+	$rKK=mysql_fetch_array($qryKK);	
+	if($r[UnitName]=="kg"){$qt=$r[QuantityToOrder];}else{$qt=$r[Weight];}					
+	$blKG=round($rKK[kgs]-$qt,2);
+	$blYD=round($rKK[yds]-$r[QuantityToOrder],2);					
+	if($r[UnitName]=="kg"){$pers=round(($rKK[kgs]/$qt)*100,2);}
+	if($r[UnitName]=="yard"){$persYD=round(($rKK[yds]/$r[QuantityToOrder])*100,2);}					
+					?>
+						<tr>
+							<td align="center">
+								<?php echo $r[SONumber]; ?>
+							</td>
+							<td align="center"><?php echo $r[DocumentNo]; ?></td>
+							<td align="center"><?php if($r[POADD]==""){echo $r[PONumber];}else{ echo $r[POADD]; } ?></td>
+							<td align="center"><?php echo $r[ProductCode]; ?></td>
+							<td align="center"><a href="#" class="detail_order" id="<?php echo $r[DocumentNo]."item:".$r[ProductCode]."warna:".trim($warn)."po:".trim($po); ?>"><?php echo $r[Color]; ?></a></td>
+							<td>&nbsp;</td>
+							<td align="center"><?php echo $rHS[hs_code]; ?></td>
+							<td align="right"><?php echo number_format($r[UnitPrice],"3",".",""); ?></td>
+							<td align="right"><?php if($r[UnitName]=="yard"){echo"YD";}elseif($r[UnitName]=="kg"){echo"KG";}elseif($r[UnitName]=="pc"){echo"PC";} ?>							  </td>
+							<td align="right"><?php if($r[UnitName]=="kg"){echo $r[QuantityToOrder];}else{echo round($r[Weight],2);} ?></td>
+							<td align="right"><?php if($r[UnitName]=="yard"){echo $r[QuantityToOrder];} ?></td>
+							<td align="right">&nbsp;</td>
+						</tr>
+						<?php
+  } ?>
+					</tbody>
+
+				</table>
+<?php } ?>				
+				<div id="PeriksaEdit" class="modal fade modal-3d-slit" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+
+				</div>
+				
+		  </div>
+		</div>
+	</div>
+</div>
+<!-- Modal Popup untuk delete-->
+            <div class="modal fade" id="delJadwal" tabindex="-1">
+              <div class="modal-dialog modal-sm">
+                <div class="modal-content" style="margin-top:100px;">
+                  <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                    <h4 class="modal-title" style="text-align:center;">Are you sure to delete this information ?</h4>
+                  </div>
+
+                  <div class="modal-footer" style="margin:0px; border-top:0px; text-align:center;">
+                    <a href="#" class="btn btn-danger" id="delJadwal_link">Delete</a>
+                    <button type="button" class="btn btn-success" data-dismiss="modal">Cancel</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+<div id="DetailCekOrder" class="modal fade modal-3d-slit" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true"></div>
+<?php $qry4=mssql_query("
+	SELECT
+	jo.DocumentNo,
+	so.PONumber,
+    SODA.PONumber as POADD,	
+	ISNULL(pmp.ProductCode,pm.hangerno) AS ProductCode,
+	pm.Color,
+	pm.ColorNo,
+	SOD.UnitPrice,
+	UD.UnitName,
+	so.SONumber,
+	SOD.Weight,
+	SOD.QuantityToOrder
+FROM
+	SODetails SOD
+LEFT JOIN SalesOrders so ON SOD.SOID = so.ID
+LEFT JOIN SODetailsAdditional SODA ON SODA.SODID=SOD.ID
+LEFT JOIN UnitDescription UD ON UD.id = SOD.UnitID
+LEFT JOIN JobOrders jo ON jo.SOID = so.ID
+LEFT JOIN Partners p ON p.ID = so.CustomerID
+LEFT JOIN ProductMaster pm ON pm.ID = SOD.ProductID
+LEFT JOIN ProductPartner pmp ON sod.ProductID = pmp.ProductID
+AND so.BuyerID = pmp.PartnerID
+WHERE
+	so.SONumber LIKE '$_GET[pi]'
+ORDER BY
+	SOD.ID ASC"); ?>
+<?php 
+
+if (isset($_POST[save])) {
+        $qry1=mysql_query("INSERT INTO tbl_exim_pim SET
+		no_pi='$_POST[no_pi]',
+		bon_order='$_POST[bon_order]',
+		buyer='$_POST[buyer]',
+		messr='$_POST[messr]',
+		consignee='$_POST[consignee]',
+		destination='$_POST[dest]',
+		payment='$_POST[payment]',
+		incoterm='$_POST[incoterm]',
+		sales_assistant='$_POST[sales]',
+		delivery='$_POST[tgl_delivery]',
+		author='$_POST[author]',
+		tgl_terima='$_POST[tgl_terima]',
+		tgl_update=now()
+		");
+		$cekPI=mysql_query("SELECT id FROM tbl_exim_pim WHERE no_pi='$_POST[no_pi]' ORDER BY id DESC ");
+		$rcekPI=mysql_fetch_array($cekPI);
+		
+		$po="";
+		$per="";
+		$kg="0";
+		$yd="0";
+		$pc="0";
+		while($r1=mssql_fetch_array($qry4)){ 
+		if($r1[POADD]==""){$po=str_replace("'","''",$r1[PONumber]);}else{ $po=str_replace("'","''",$r1[POADD]); }
+		$sqlHS1=mysql_query("SELECT hs_code FROM tbl_exim_code WHERE no_item='$r1[ProductCode]' LIMIT 1");
+		$rHS1=mysql_fetch_array($sqlHS1);
+		if($r1[UnitName]=="yard"){$per="yd";}elseif($r1[UnitName]=="kg"){$per="kg";}elseif($r1[UnitName]=="pc"){$per="pc";}	
+		if($r1[UnitName]=="kg"){$kg=$r1[QuantityToOrder];}else{$kg=round($r1[Weight]);}
+		if($r1[UnitName]=="yard"){$yd=$r1[QuantityToOrder];}	
+		$qry1=mysql_query("INSERT INTO tbl_exim_pim_detail SET
+		id_pi='$rcekPI[id]',
+		po='$po',
+		item='$r1[ProductCode]',
+		color='$r1[Color]',
+		hs_code='$rHS1[hs_code]',
+		price='$r1[UnitPrice]',
+		per='$per',
+		kg='$kg',
+		yd='$yd',
+		pcs='$pc'
+		");
+			
+		}
+        if ($qry1) {
+            //echo "<script>alert('Data Tersimpan');</script>";
+            //echo "<script>window.location.href='?p=Form-Pemeriksaan&no_mesin=$_GET[no_mesin]';</script>";
+            echo "<script>swal({
+  title: 'Data Tersimpan',
+  text: 'Klik Ok untuk melanjutkan',
+  type: 'success',
+  }).then((result) => {
+  if (result.value) {
+    window.location.href='?p=Proforma-Invoice-Manual';
+  }
+});</script>";
+        } else {
+            echo "There's been a problem: " . mysql_error();
+        }
+    }
+
+?>
+<script type="text/javascript">
+              function confirm_del_jdwl(delete_url) {
+                $('#delJadwal').modal('show', {
+                  backdrop: 'static'
+                });
+                document.getElementById('delJadwal_link').setAttribute('href', delete_url);
+              }
+
+            </script>
