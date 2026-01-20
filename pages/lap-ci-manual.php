@@ -59,12 +59,12 @@ include "koneksi.php";
               </thead>
               <tbody>
                 <?php
-  $sql=mysqli_query($con,"SELECT * FROM tbl_exim_cim ORDER BY etd ASC");
-  while ($r=mysqli_fetch_array($sql)) {
+  $sql=sqlsrv_query($con,"SELECT * FROM tbl_exim_cim ORDER BY etd ASC");
+  while ($r=sqlsrv_fetch_array($sql)) {
       $no++;
       $bgcolor = ($col++ & 1) ? 'gainsboro' : 'antiquewhite'; 
-	  $sqlck=mysqli_query($con,"SELECT * FROM tbl_exim_cim_detail WHERE id_cim='".$r['id']."' ");
-	  $ck=mysqli_num_rows($sqlck);
+	  $sqlck=sqlsrv_query($con,"SELECT * FROM tbl_exim_cim_detail WHERE id_cim='".$r['id']."' ");
+	  $ck=sqlsrv_num_rows($sqlck);
 	 ?>
                 <tr bgcolor="<?php echo $bgcolor; ?>">
                   <td align="center"><?php echo $no; ?></td>

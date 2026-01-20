@@ -7,7 +7,7 @@ if($_POST){
     $negara = str_replace("'","''",$_POST['negara']);
 	$kode = str_replace("'","''",$_POST['kode']);
     $ket = str_replace("'","''",$_POST['ket']);
-				$sqlupdate=mysqli_query($con,"UPDATE `tbl_exim_buyer` SET 
+				$sqlupdate=sqlsrv_query($con,"UPDATE `tbl_exim_buyer` SET 
 				`nama`='$nama',
 				`alamat`='$alamat',
 				`negara`='$negara',

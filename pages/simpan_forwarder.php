@@ -7,7 +7,7 @@ if($_POST){
     $pic = str_replace("'","''",$_POST['pic']);
 	$email = str_replace("'","''",$_POST['email']);
     $ket = str_replace("'","''",$_POST['ket']);
-	$sqlupdate=mysqli_query($con,"INSERT INTO `tbl_exim_forwarder` SET 
+	$sqlupdate=sqlsrv_query($con,"INSERT INTO `tbl_exim_forwarder` SET 
 				`nama`='$nama', 
 				`alamat`='$alamat',
 				`pic`='$pic',

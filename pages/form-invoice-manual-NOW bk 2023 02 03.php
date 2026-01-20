@@ -49,9 +49,9 @@ $rdb2 = db2_fetch_assoc($stmt1);
 ?>
 <?php
    
-$sqlCek=mysqli_query($con,"SELECT * FROM tbl_exim_pim WHERE no_pi='".$_GET['pi']."' LIMIT 1");
-$cek=mysqli_num_rows($sqlCek);
-$r=mysqli_fetch_array($sqlCek);
+$sqlCek=sqlsrv_query($con,"SELECT * FROM tbl_exim_pim WHERE no_pi='".$_GET['pi']."' LIMIT 1");
+$cek=sqlsrv_num_rows($sqlCek);
+$r=sqlsrv_fetch_array($sqlCek);
 ?>
 
 <div class="box box-info">
@@ -246,8 +246,8 @@ $stmt2=db2_exec($conn1,$sql2DB2, array('cursor'=>DB2_SCROLLABLE));
 					while($r=db2_fetch_assoc($stmt2)){
 					$bgcolor = ($c++ & 1) ? '#33CCFF' : '#FFCC99';
 					if($r['NOITEM']==""){$itmm=$r['HANGERNO'];}else{$itmm=$r['NOITEM'];}	
-					$sqlHS=mysqli_query($con,"SELECT hs_code FROM tbl_exim_code WHERE no_item='".$itmm."' LIMIT 1");
-					$rHS=mysqli_fetch_array($sqlHS);
+					$sqlHS=sqlsrv_query($con,"SELECT hs_code FROM tbl_exim_code WHERE no_item='".$itmm."' LIMIT 1");
+					$rHS=sqlsrv_fetch_array($sqlHS);
 					?>
 						<tr bgcolor="<?php echo $bgcolor; ?>">
 							<td align="center">
@@ -334,7 +334,7 @@ ORDER BY
 <?php 
 
 if (isset($_POST['save'])) {
-        $qry1=mysqli_query($con,"INSERT INTO tbl_exim_pim SET
+        $qry1=sqlsrv_query($con,"INSERT INTO tbl_exim_pim SET
 		no_pi='".$_POST['no_pi']."',
 		bon_order='".$_POST['bon_order']."',
 		buyer='".$_POST['buyer']."',
@@ -349,8 +349,8 @@ if (isset($_POST['save'])) {
 		tgl_terima='".$_POST['tgl_terima']."',
 		tgl_update=now()
 		");
-		$cekPI=mysqli_query($con,"SELECT id FROM tbl_exim_pim WHERE no_pi='".$_POST['no_pi']."' ORDER BY id DESC ");
-		$rcekPI=mysqli_fetch_array($cekPI);		
+		$cekPI=sqlsrv_query($con,"SELECT id FROM tbl_exim_pim WHERE no_pi='".$_POST['no_pi']."' ORDER BY id DESC ");
+		$rcekPI=sqlsrv_fetch_array($cekPI);		
 		$po="";
 		$per="";
 		$kg="0";
@@ -358,12 +358,12 @@ if (isset($_POST['save'])) {
 		$pc="0";
 		while($r1=sqlsrv_fetch_array($qry4,SQLSRV_FETCH_ASSOC)){ 
 		if($r1['POADD']==""){$po=str_replace("'","''",$r1['PONumber']);}else{ $po=str_replace("'","''",$r1['POADD']); }
-		$sqlHS1=mysqli_query($con,"SELECT hs_code FROM tbl_exim_code WHERE no_item='".$r1['ProductCode']."' LIMIT 1");
-		$rHS1=mysqli_fetch_array($sqlHS1);
+		$sqlHS1=sqlsrv_query($con,"SELECT hs_code FROM tbl_exim_code WHERE no_item='".$r1['ProductCode']."' LIMIT 1");
+		$rHS1=sqlsrv_fetch_array($sqlHS1);
 		if($r1['UnitName']=="yard"){$per="yd";}elseif($r1['UnitName']=="kg"){$per="kg";}elseif($r1['UnitName']=="pc"){$per="pc";}	
 		if($r1['UnitName']=="kg"){$kg=$r1['QuantityToOrder'];}else{$kg=round($r1['Weight']);}
 		if($r1['UnitName']=="yard"){$yd=$r1['QuantityToOrder'];}	
-		$qry1=mysqli_query($con,"INSERT INTO tbl_exim_pim_detail SET
+		$qry1=sqlsrv_query($con,"INSERT INTO tbl_exim_pim_detail SET
 		id_pi='".$rcekPI['id']."',
 		po='$po',
 		item='".$r1['ProductCode']."',
@@ -392,7 +392,7 @@ if (isset($_POST['save'])) {
         }
     }
 if (isset($_POST['edit'])) {
-        $qry1=mysqli_query($con,"UPDATE tbl_exim_pim SET
+        $qry1=sqlsrv_query($con,"UPDATE tbl_exim_pim SET
 		bon_order='".$_POST['bon_order']."',
 		buyer='".$_POST['buyer']."',
 		messr='".$_POST['messr']."',

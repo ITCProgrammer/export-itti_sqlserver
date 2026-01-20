@@ -8,17 +8,17 @@ $sqldesc = sqlsrv_query($conn," SELECT d.PONumber,Description,CuttableWidth,c.We
                         INNER JOIN sodetailsadditional d ON d.sodid=b.id
                         INNER JOIN ProductPartner e ON e.productid=b.ProductID
                         WHERE a.SONumber='".$_POST['dono']."' AND e.ProductCode='".$_POST['item']."' AND  d.PONumber ='".$_POST['nopo']."' AND e.Color='".$_POST['warna']."' ");
-$sqlpi = mysqli_query($con,"SELECT * FROM tbl_exim_pi_detail WHERE no_pi='".$_POST['dono']."' and no_item='".$_POST['item']."' and warna='".$_POST['warna']."' ");
+$sqlpi = sqlsrv_query($con,"SELECT * FROM tbl_exim_pi_detail WHERE no_pi='".$_POST['dono']."' and no_item='".$_POST['item']."' and warna='".$_POST['warna']."' ");
 
-$sqlpi1 = mysqli_query($con,"SELECT * FROM tbl_exim_pi_detail WHERE id='".$_GET['PI']."' ");
-$rpi1 = mysqli_fetch_array($sqlpi1);
+$sqlpi1 = sqlsrv_query($con,"SELECT * FROM tbl_exim_pi_detail WHERE id='".$_GET['PI']."' ");
+$rpi1 = sqlsrv_fetch_array($sqlpi1);
 
 
 $count = mysql_num_rows($sqlpi);
 $val = sqlsrv_fetch_array($sqldesc,SQLSRV_FETCH_ASSOC);
 
 $data = array();
-while ($row = mysqli_fetch_array($sqlpi)) {
+while ($row = sqlsrv_fetch_array($sqlpi)) {
     $pi['id'] = $row['id'];
     $pi['warna'] = $row['warna'];
     $pi['qty'] = $row['qty'];

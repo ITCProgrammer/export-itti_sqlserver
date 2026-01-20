@@ -16,7 +16,7 @@ if ($_SESSION['levelEX']=="SPV" or $_SESSION['levelEX']=="Staff") {
 
 <body>
 <?php
-   $dataHS=mysqli_query($con,"SELECT * FROM tbl_exim_code ORDER BY id DESC");
+   $dataHS=sqlsrv_query($con,"SELECT * FROM tbl_exim_code ORDER BY id DESC");
 	$no=1;
 	$n=1;
 	$c=0;
@@ -44,7 +44,7 @@ if ($_SESSION['levelEX']=="SPV" or $_SESSION['levelEX']=="Staff") {
   <tbody>
   <?php
 	  $col=0;
-  while($rowd=mysqli_fetch_array($dataHS)){ 
+  while($rowd=sqlsrv_fetch_array($dataHS)){ 
 			$bgcolor = ($col++ & 1) ? 'gainsboro' : 'antiquewhite';
 		 ?> 
   <tr align="center" bgcolor="<?php echo $bgcolor; ?>">

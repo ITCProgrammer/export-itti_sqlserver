@@ -55,33 +55,35 @@ include "koneksi.php";
               </thead>
               <tbody>
                 <?php
-  $sql=mysql_query("SELECT
-	c.TGL_KONV,
-	c.ID_KONV,
-	a.KD_KONV_EKS,
-	a.NO_URUT AS URUT_IMP,
-	a.HS_CODE AS HS_IMP,
-	a.KD_KONV_IMP,
-	a.NIL_KANDUNG,
-	a.NIL_KOEFISIEN,
-	a.NIL_WASTE,
-	b.NO_URUT AS URUT_EKS,
-	b.HS_CODE AS HS_EKS	
-FROM
-	tk_konv_imp_temp a
-	LEFT JOIN tk_konv_eks_temp b ON a.KD_KONV_EKS = b.KD_KONV_EKS
-	LEFT JOIN tk_konv_hdr_temp c ON b.ID_KONV = c.ID_KONV 
-ORDER BY
-	c.ID_KONV DESC,
-	b.NO_URUT,
-	a.NO_URUT ASC");
-  while ($r=mysql_fetch_array($sql)) {
+  $sql=sqlsrv_query($con, "SELECT
+    c.TGL_KONV,
+    c.ID_KONV,
+    a.KD_KONV_EKS,
+    a.NO_URUT AS URUT_IMP,
+    a.HS_CODE AS HS_IMP,
+    a.KD_KONV_IMP,
+    a.NIL_KANDUNG,
+    a.NIL_KOEFISIEN,
+    a.NIL_WASTE,
+    b.NO_URUT AS URUT_EKS,
+    b.HS_CODE AS HS_EKS	
+  FROM
+    db_qc.tk_konv_imp_temp a
+    LEFT JOIN db_qc.tk_konv_eks_temp b ON a.KD_KONV_EKS = b.KD_KONV_EKS
+    LEFT JOIN db_qc.tk_konv_hdr_temp c ON b.ID_KONV = c.ID_KONV 
+  ORDER BY
+    c.ID_KONV DESC,
+    b.NO_URUT,
+    a.NO_URUT ASC");
+
+  $date = new DateTime();
+  while ($r=sqlsrv_fetch_array($sql, SQLSRV_FETCH_ASSOC)) {
       $no++;
       $bgcolor = ($col++ & 1) ? 'gainsboro' : 'antiquewhite';
 	 ?>
                 <tr bgcolor="<?php echo $bgcolor; ?>">
                   <td align="center"><?php echo $no; ?></td>
-                  <td align="center"><?php echo $r['TGL_KONV']; ?></td>
+                  <td align="center"><?php echo $r['TGL_KONV']->format('Y-m-d'); ?></td>
                   <td align="center"><?php echo $r['ID_KONV']; ?></td>
                   <td align="center"><?php echo substr($r['KD_KONV_EKS'],11,20); ?></td>
                   <td align="center"><?php echo $r['HS_EKS']; ?></td>

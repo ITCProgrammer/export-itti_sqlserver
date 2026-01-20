@@ -1,9 +1,9 @@
 <?php
 include("../koneksi.php");
     $modal_id=$_GET['id'];
-    $qrySts=mysqli_query($con,"SELECT * FROM tbl_exim_pim_detail
+    $qrySts=sqlsrv_query($con,"SELECT * FROM tbl_exim_pim_detail
 WHERE id='$modal_id'");
-    $rSts=mysqli_fetch_array($qrySts);
+    $rSts=sqlsrv_fetch_array($qrySts);
     ?>
 <div class="modal-dialog modal-sm">
   <div class="modal-content">
@@ -39,7 +39,7 @@ if (isset($_POST['save'])) {
     extract($_POST);
     $id =$_POST['id'];
     $sts = $_POST['status'];
-    $sqlupdate=mysqli_query($con,"UPDATE `tbl_exim_pim_detail` SET
+    $sqlupdate=sqlsrv_query($con,"UPDATE `tbl_exim_pim_detail` SET
 				`status`='$sts'
 				WHERE `id`='$id' LIMIT 1");
     //echo " <script>window.location='?p=Proforma-Invoice-Manual';</script>";

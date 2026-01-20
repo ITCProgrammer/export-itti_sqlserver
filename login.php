@@ -190,12 +190,17 @@ if ($_POST) { //login user
   $username = $_POST['username'];
   $password = $_POST['password'];
   $level    =  $_POST['level'];
-  $sql = mysqli_query($con,"select * from user_login where user='$username' and password='$password' and level = '$level' limit 1");
-  if (mysqli_num_rows($sql) > 0) {
+  $query = "select DISTINCT * from db_qc.user_login ul where ul.\"user\"='$username' and password='$password' and level = '$level' ";
+  $sql = sqlsrv_query($con, $query, $dt, $options);
+  print($sql);
+  if($sql === false) {
+    die(print_r(sqlsrv_errors(), true));
+  }
+  if (sqlsrv_num_rows($sql) > 0) {
     $_SESSION['usernmEX'] = $username;
     $_SESSION['passwordEX'] = $password;
     $_SESSION['levelEX'] = $level;
-    $r = mysqli_fetch_array($sql);
+    $r = sqlsrv_fetch_array($sql);
     $_SESSION['statusEX'] = $r['status'];
     $_SESSION['fotoEX'] = $r['foto'];
     //login_validate();

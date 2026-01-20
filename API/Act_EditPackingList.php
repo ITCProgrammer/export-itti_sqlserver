@@ -7,7 +7,7 @@ if ($_POST['update'] == 'UPDATE') {
     $po = str_replace("'", "''", $_POST['no_po']);
     $desc1 = str_replace("'", "''", $_POST['desc1']);
     $desc2 = str_replace("'", "''", $_POST['desc2']);
-    mysqli_query($con,"UPDATE `tbl_exim_detail` SET 
+    sqlsrv_query($con,"UPDATE `tbl_exim_detail` SET 
                 `no_order`='$dono',
                 `no_po`='$po',
                 `no_item`='".$_POST['no_item']."',

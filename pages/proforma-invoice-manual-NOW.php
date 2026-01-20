@@ -57,20 +57,20 @@ ini_set("error_reporting", 1);
               </thead>
               <tbody>
                 <?php
-  $sql=mysqli_query($con,"SELECT a.*,if(locate('Closed',group_concat(DISTINCT b.`status` ORDER BY b.`status` ASC))='1','Closed','On Going') as `status`,sum(b.kg) as kg FROM tbl_exim_pim  a
+  $sql=sqlsrv_query($con,"SELECT a.*,if(locate('Closed',group_concat(DISTINCT b.`status` ORDER BY b.`status` ASC))='1','Closed','On Going') as `status`,sum(b.kg) as kg FROM tbl_exim_pim  a
 INNER JOIN tbl_exim_pim_detail b ON a.id=b.id_pi
 WHERE b.`status`='On Going'
 GROUP BY a.id
 ORDER BY if(locate('Closed',group_concat(DISTINCT b.`status` ORDER BY b.`status` ASC))='1','Closed','On Going') DESC, a.tgl_terima ASC");
-  while ($r=mysqli_fetch_array($sql)) {
+  while ($r=sqlsrv_fetch_array($sql)) {
       $no++;
       $bgcolor = ($col++ & 1) ? 'gainsboro' : 'antiquewhite';
-		$qAct=mysqli_query($con,"SELECT sum(kg) as kg FROM tbl_exim_cim_detail WHERE no_pi='".$r['no_pi']."'");
-	  	$dAct=mysqli_fetch_array($qAct);
-	  	$qAct1=mysqli_query($con,"SELECT sum(kg) as kg FROM tbl_exim_pim_detail a
+		$qAct=sqlsrv_query($con,"SELECT sum(kg) as kg FROM tbl_exim_cim_detail WHERE no_pi='".$r['no_pi']."'");
+	  	$dAct=sqlsrv_fetch_array($qAct);
+	  	$qAct1=sqlsrv_query($con,"SELECT sum(kg) as kg FROM tbl_exim_pim_detail a
 					INNER JOIN tbl_exim_pim b ON a.id_pi=b.id
 					WHERE a.id_pi='".$r['id']."' ORDER BY a.status ASC");
-	  	$dAct1=mysqli_fetch_array($qAct1);
+	  	$dAct1=sqlsrv_fetch_array($qAct1);
 	?>
                 <tr bgcolor="<?php echo $bgcolor; ?>">
                   <td align="center"><?php echo $no; ?></td>

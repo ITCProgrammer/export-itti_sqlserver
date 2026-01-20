@@ -36,8 +36,8 @@ WHERE a.SONumber='".$_GET['pi']."'");
 ?>
 <?php
    
-$sqlCek=mysqli_query($con,"SELECT * FROM tbl_exim_pim WHERE no_pi='".$_GET['pi']."' LIMIT 1");
-$cek=mysqli_num_rows($sqlCek);
+$sqlCek=sqlsrv_query($con,"SELECT * FROM tbl_exim_pim WHERE no_pi='".$_GET['pi']."' LIMIT 1");
+$cek=sqlsrv_num_rows($sqlCek);
 ?>
 
 <div class="box box-info">
@@ -49,8 +49,8 @@ $cek=mysqli_num_rows($sqlCek);
 			</div>
 		</div>
 		<?php
-    $sql11=mysqli_query($con," SELECT * FROM tbl_exim_pim ");
-    $r11=mysqli_fetch_array($sql11);
+    $sql11=sqlsrv_query($con," SELECT * FROM tbl_exim_pim ");
+    $r11=sqlsrv_fetch_array($sql11);
      
      ?>
 		<div class="box-body">
@@ -160,11 +160,11 @@ ORDER BY
 					$c=1;					
 					while($r=sqlsrv_fetch_array($qry3,SQLSRV_FETCH_ASSOC)){
 					$bgcolor = ($c++ & 1) ? '#33CCFF' : '#FFCC99';
-					$sqlHS=mysqli_query($con,"SELECT hs_code FROM tbl_exim_code WHERE no_item='".$r['ProductCode']."' LIMIT 1");
-					$rHS=mysqli_fetch_array($sqlHS);
+					$sqlHS=sqlsrv_query($con,"SELECT hs_code FROM tbl_exim_code WHERE no_item='".$r['ProductCode']."' LIMIT 1");
+					$rHS=sqlsrv_fetch_array($sqlHS);
 					$warn=str_replace("'","",trim($r['Color']));
 					if($r['POADD']==""){$po=$r['PONumber'];}else{ $po=$r['POADD']; }	
-					$qryKK=mysqli_query($con,"SELECT
+					$qryKK=sqlsrv_query($con,"SELECT
 	tbl_kite.no_lot,
 	tbl_kite.nokk,
 	sum(if( not detail_pergerakan_stok.sisa='FOC',detail_pergerakan_stok.weight,0)) as kgs,
@@ -185,7 +185,7 @@ AND `tbl_kite`.`no_order`='".$r['DocumentNo']."' AND `tbl_kite`.`no_item`='".$r[
  ORDER BY `pergerakan_stok`.`typestatus`,
 	`detail_pergerakan_stok`.`nokk`,
 	`detail_pergerakan_stok`.`no_roll` ASC");
-	$rKK=mysqli_fetch_array($qryKK);	
+	$rKK=sqlsrv_fetch_array($qryKK);	
 	if($r['UnitName']=="kg"){$qt=$r['QuantityToOrder'];}else{$qt=$r['Weight'];}					
 	$blKG=round($rKK['kgs']-$qt,2);
 	$blYD=round($rKK['yds']-$r['QuantityToOrder'],2);					
@@ -257,11 +257,11 @@ AND `tbl_kite`.`no_order`='".$r['DocumentNo']."' AND `tbl_kite`.`no_item`='".$r[
 					$c=1;					
 					while($r=sqlsrv_fetch_array($qry3,SQLSRV_FETCH_ASSOC)){
 					$bgcolor = ($c++ & 1) ? '#33CCFF' : '#FFCC99';
-					$sqlHS=mysqli_query($con,"SELECT hs_code FROM tbl_exim_code WHERE no_item='".$r['ProductCode']."' LIMIT 1");
-					$rHS=mysqli_fetch_array($sqlHS);
+					$sqlHS=sqlsrv_query($con,"SELECT hs_code FROM tbl_exim_code WHERE no_item='".$r['ProductCode']."' LIMIT 1");
+					$rHS=sqlsrv_fetch_array($sqlHS);
 					$warn=str_replace("'","",trim($r['Color']));
 					if($r['POADD']==""){$po=$r['PONumber'];}else{ $po=$r['POADD']; }	
-					$qryKK=mysqli_query($con,"SELECT
+					$qryKK=sqlsrv_query($con,"SELECT
 	tbl_kite.no_lot,
 	tbl_kite.nokk,
 	sum(if( not detail_pergerakan_stok.sisa='FOC',detail_pergerakan_stok.weight,0)) as kgs,
@@ -282,7 +282,7 @@ AND `tbl_kite`.`no_order`='".$r['DocumentNo']."' AND `tbl_kite`.`no_item`='".$r[
  ORDER BY `pergerakan_stok`.`typestatus`,
 	`detail_pergerakan_stok`.`nokk`,
 	`detail_pergerakan_stok`.`no_roll` ASC");
-	$rKK=mysqli_fetch_array($qryKK);	
+	$rKK=sqlsrv_fetch_array($qryKK);	
 	if($r['UnitName']=="kg"){$qt=$r['QuantityToOrder'];}else{$qt=$r['Weight'];}					
 	$blKG=round($rKK['kgs']-$qt,2);
 	$blYD=round($rKK['yds']-$r['QuantityToOrder'],2);					
@@ -366,7 +366,7 @@ ORDER BY
 <?php 
 
 if (isset($_POST['save'])) {
-        $qry1=mysqli_query($con,"INSERT INTO tbl_exim_pim SET
+        $qry1=sqlsrv_query($con,"INSERT INTO tbl_exim_pim SET
 		no_pi='".$_POST['no_pi']."',
 		bon_order='".$_POST['bon_order']."',
 		buyer='".$_POST['buyer']."',
@@ -381,8 +381,8 @@ if (isset($_POST['save'])) {
 		tgl_terima='".$_POST['tgl_terima']."',
 		tgl_update=now()
 		");
-		$cekPI=mysqli_query($con,"SELECT id FROM tbl_exim_pim WHERE no_pi='".$_POST['no_pi']."' ORDER BY id DESC ");
-		$rcekPI=mysqli_fetch_array($cekPI);
+		$cekPI=sqlsrv_query($con,"SELECT id FROM tbl_exim_pim WHERE no_pi='".$_POST['no_pi']."' ORDER BY id DESC ");
+		$rcekPI=sqlsrv_fetch_array($cekPI);
 		
 		$po="";
 		$per="";
@@ -391,12 +391,12 @@ if (isset($_POST['save'])) {
 		$pc="0";
 		while($r1=sqlsrv_fetch_array($qry4,SQLSRV_FETCH_ASSOC)){ 
 		if($r1['POADD']==""){$po=str_replace("'","''",$r1[PONumber]);}else{ $po=str_replace("'","''",$r1['POADD']); }
-		$sqlHS1=mysqli_query($con,"SELECT hs_code FROM tbl_exim_code WHERE no_item='".$r1['ProductCode']."' LIMIT 1");
-		$rHS1=mysqli_fetch_array($sqlHS1);
+		$sqlHS1=sqlsrv_query($con,"SELECT hs_code FROM tbl_exim_code WHERE no_item='".$r1['ProductCode']."' LIMIT 1");
+		$rHS1=sqlsrv_fetch_array($sqlHS1);
 		if($r['UnitName']=="yard"){$per="yd";}elseif($r['UnitName']=="kg"){$per="kg";}elseif($r['UnitName']=="pc"){$per="pc";}	
 		if($r['UnitName']=="kg"){$kg=$r1['QuantityToOrder'];}else{$kg=round($r1['Weight']);}
 		if($r['UnitName']=="yard"){$yd=$r1['QuantityToOrder'];}	
-		$qry1=mysqli_query($con,"INSERT INTO tbl_exim_pim_detail SET
+		$qry1=sqlsrv_query($con,"INSERT INTO tbl_exim_pim_detail SET
 		id_pi='".$rcekPI['id']."',
 		po='$po',
 		item='".$r1['ProductCode']."',

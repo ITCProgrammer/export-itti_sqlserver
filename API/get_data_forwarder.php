@@ -1,9 +1,9 @@
 <?php
 session_start();
 include '../koneksi.php';
-$qryfwd = mysqli_query($con,"SELECT * FROM tbl_exim_forwarder WHERE `nama`='".$_POST['fwd']."' limit 1");
-$rf = mysqli_fetch_assoc($qryfwd);
-$count = mysqli_num_rows($qryfwd);
+$qryfwd = sqlsrv_query($con,"SELECT * FROM tbl_exim_forwarder WHERE `nama`='".$_POST['fwd']."' limit 1");
+$rf = sqlsrv_fetch_assoc($qryfwd);
+$count = sqlsrv_num_rows($qryfwd);
 
 if ($count > 0) {
     $data = array(

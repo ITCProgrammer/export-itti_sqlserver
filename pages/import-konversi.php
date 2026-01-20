@@ -111,11 +111,11 @@
               </thead>
               <tbody>
   <?php 
-	$sqldt=mysqli_query($con,"SELECT * FROM tk_konv_hdr_temp ORDER BY ID_KONV DESC");
+	$sqldt=sqlsrv_query($con,"SELECT * FROM tk_konv_hdr_temp ORDER BY ID_KONV DESC");
 	$no=1;
-	while($rowd=mysqli_fetch_array($sqldt)){
-		 $sqlEKS=mysqli_query($con,"SELECT COUNT(*) as jml FROM tk_konv_eks_temp WHERE ID_KONV='".$rowd['ID_KONV']."' GROUP BY ID_KONV ");
-		 $rEKS=mysqli_fetch_array($sqlEKS);		 
+	while($rowd=sqlsrv_fetch_array($sqldt)){
+		 $sqlEKS=sqlsrv_query($con,"SELECT COUNT(*) as jml FROM tk_konv_eks_temp WHERE ID_KONV='".$rowd['ID_KONV']."' GROUP BY ID_KONV ");
+		 $rEKS=sqlsrv_fetch_array($sqlEKS);		 
 		?>
                 <tr>
                   <td align="center" ><?php echo $no; ?></td>

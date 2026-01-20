@@ -6,7 +6,7 @@ if($_POST){
 	$itm = str_replace("'","''",$_POST['item']);   
     $sts = str_replace("'","''",$_POST['sts']); 
     $ket = str_replace("'","''",$_POST['ket']);
-	$sqlupdate=mysqli_query($con,"INSERT INTO `tbl_exim_code` SET 
+	$sqlupdate=sqlsrv_query($con,"INSERT INTO `tbl_exim_code` SET 
 				`hs_code`='$hs', 
 				`no_item`='$itm',
 				`sts`='$sts',

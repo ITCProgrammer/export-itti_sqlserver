@@ -1,8 +1,8 @@
 <?php
 session_start();
 include '../koneksi.php';
-$sqldt = mysqli_query($con,"SELECT * FROM tbl_exim_sa WHERE no_sa='".$_GET['id']."'");
-$data = mysqli_fetch_array($sqldt);
+$sqldt = sqlsrv_query($con,"SELECT * FROM tbl_exim_sa WHERE no_sa='".$_GET['id']."'");
+$data = sqlsrv_fetch_array($sqldt);
 ?>
 <div class="modal-content">
     <form method="post" enctype="multipart/form-data" name="form_pilih_sa" id="awb_form_tambah" class="form-horizontal">

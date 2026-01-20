@@ -42,7 +42,7 @@ $po=trim(substr($warna,$poswarna+3,500));
 					</thead>
 					<tbody>
 					<?php 
-	$datasum=mysqli_query($con,"SELECT
+	$datasum=sqlsrv_query($con,"SELECT
 	tbl_kite.no_lot,
 	tbl_kite.nokk,
 	sum(if( not detail_pergerakan_stok.sisa='FOC',detail_pergerakan_stok.weight,0)) as kgs,
@@ -65,9 +65,9 @@ AND `tbl_kite`.`no_order`='".$order."'
 	`detail_pergerakan_stok`.`nokk`,
 	`detail_pergerakan_stok`.`no_roll` ASC");	
 							
-					while($r=mysqli_fetch_array($datasum)){		
-						$mySql =mysqli_query($con,"select GROUP_CONCAT(distinct lokasi) as tempat from db_qc.detail_pergerakan_stok where `status`='1' and nokk='".$r['nokk']."'");
-	   $myBlk = mysqli_fetch_array($mySql);
+					while($r=sqlsrv_fetch_array($datasum)){		
+						$mySql =sqlsrv_query($con,"select GROUP_CONCAT(distinct lokasi) as tempat from db_qc.detail_pergerakan_stok where `status`='1' and nokk='".$r['nokk']."'");
+	   $myBlk = sqlsrv_fetch_array($mySql);
 					?>
 						<tr>
 						  <td align="center"><?php echo $r['nokk'];?></td>

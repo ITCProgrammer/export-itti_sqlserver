@@ -58,27 +58,27 @@ include "koneksi.php";
               </thead>
               <tbody>
                 <?php
-  $sql=mysqli_query($con,"SELECT *,tgl_lhpre + INTERVAL 180 DAY as tgl_expiry,DATEDIFF(tgl_lhpre + INTERVAL 180 DAY,now()) as hari FROM tbl_exim_cim WHERE fasilitas='KITE' or fasilitas='UMUM(KITE)' ORDER BY fasilitas,etd ASC");
-  while ($r=mysqli_fetch_array($sql)) {
+  $sql=sqlsrv_query($con,"SELECT *,tgl_lhpre + INTERVAL 180 DAY as tgl_expiry,DATEDIFF(tgl_lhpre + INTERVAL 180 DAY,now()) as hari FROM tbl_exim_cim WHERE fasilitas='KITE' or fasilitas='UMUM(KITE)' ORDER BY fasilitas,etd ASC");
+  while ($r=sqlsrv_fetch_array($sql)) {
       $no++;
       $bgcolor = ($col++ & 1) ? 'gainsboro' : 'antiquewhite'; 
-	  $sqlck=mysqli_query($con,"SELECT * FROM tbl_exim_cim_detail WHERE id_cim=$r[id] ");
-	  $ck=mysqli_num_rows($sqlck);
-	  $rCIMD=mysqli_fetch_array($sqlck);
+	  $sqlck=sqlsrv_query($con,"SELECT * FROM tbl_exim_cim_detail WHERE id_cim=$r[id] ");
+	  $ck=sqlsrv_num_rows($sqlck);
+	  $rCIMD=sqlsrv_fetch_array($sqlck);
 	  if($r['hari']>0){$jmlhari=$r['hari']." Hari lagi";}else{$jmlhari="sudah EXPIRED";}
 	  if($r['hari']>=30){$warna=" label-success";}else if($r['hari']>=0){$warna=" label-warning";}else{$warna=" label-danger";}
-	  $sqlTA=mysqli_query($con,"SELECT sum(nilai) as tajukan FROM tbl_exim_pengembalian a
+	  $sqlTA=sqlsrv_query($con,"SELECT sum(nilai) as tajukan FROM tbl_exim_pengembalian a
 	  INNER JOIN tbl_exim_cim_detail b ON a.id_cimd=b.id
 	  INNER JOIN tbl_exim_cim c ON b.id_cim=c.id
 	  WHERE c.no_invoice='".$r['no_invoice']."' AND a.sts='Tidak diajukan'");
-	  $rTA=mysqli_fetch_array($sqlTA);
-	  $sqlAJ=mysqli_query($con,"SELECT sum(nilai) as tajukan FROM tbl_exim_pengembalian a
+	  $rTA=sqlsrv_fetch_array($sqlTA);
+	  $sqlAJ=sqlsrv_query($con,"SELECT sum(nilai) as tajukan FROM tbl_exim_pengembalian a
 	  INNER JOIN tbl_exim_cim_detail b ON a.id_cimd=b.id
 	  INNER JOIN tbl_exim_cim c ON b.id_cim=c.id
 	  WHERE c.no_invoice='".$r['no_invoice']."' AND a.sts='Ajukan'");
-	  $rAJ=mysqli_fetch_array($sqlAJ);
-	  $sqlTglA=mysqli_query($con,"SELECT * FROM tbl_exim_bclkt WHERE no_bclkt='".$rCIMD['no_bclkt']."'");
-	  $rTglA=mysqli_fetch_array($sqlTglA);
+	  $rAJ=sqlsrv_fetch_array($sqlAJ);
+	  $sqlTglA=sqlsrv_query($con,"SELECT * FROM tbl_exim_bclkt WHERE no_bclkt='".$rCIMD['no_bclkt']."'");
+	  $rTglA=sqlsrv_fetch_array($sqlTglA);
 	 ?>
                 <tr bgcolor="<?php echo $bgcolor; ?>">
                   <td align="center"><?php echo $no; ?></td>

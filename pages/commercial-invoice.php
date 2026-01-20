@@ -139,27 +139,33 @@ if ($Thn != "") {
             <tbody>
               <?php
               if (empty($Thn1)) {
-                $sql = mysqli_query($con,"SELECT * FROM tbl_exim ORDER BY id DESC LIMIT 500");
+                $sql = sqlsrv_query($con,"SELECT TOP 500 * FROM db_qc.tbl_exim ORDER BY id DESC");
               } else {
-                $sql = mysqli_query($con,"SELECT * FROM tbl_exim WHERE DATE_FORMAT(tgl,'%Y')='$Thn1' ORDER BY id DESC");
+                $sql = sqlsrv_query($con,"SELECT * FROM db_qc.tbl_exim WHERE YEAR(tgl)='$Thn1' ORDER BY id DESC");
+              }
+              if ($sql === false) {
+                die(print_r(sqlsrv_errors(), true));
               }
               $no = 1;
-              while ($rowd = mysqli_fetch_array($sql)) {
-                $qrypl = mysqli_query($con,"SELECT count(*) jml
-                                      FROM detail_pergerakan_stok a
-                                      INNER JOIN tmp_detail_kite b ON b.id=a.id_detail_kj
-                                      INNER JOIN tbl_kite c ON c.id=b.id_kite
+              while ($rowd = sqlsrv_fetch_array($sql, SQLSRV_FETCH_ASSOC)) {
+                $qrypl = sqlsrv_query($con,"SELECT count(*) jml
+                                      FROM db_qc.detail_pergerakan_stok a
+                                      INNER JOIN db_qc.tmp_detail_kite b ON b.id=a.id_detail_kj
+                                      INNER JOIN db_qc.tbl_kite c ON c.id=b.id_kite
                                       WHERE refno='".$rowd['listno']."'");
-                $cpl = mysqli_fetch_array($qrypl);
+                $cpl = sqlsrv_fetch_array($qrypl, SQLSRV_FETCH_ASSOC);
 
-                $sqldt1 = mysqli_query($con," SELECT sum(a.weight) as kgs,sum(a.yard_)as yds,sum(b.netto)as pcs,b.ukuran,c.user_packing ,c.warna
-                                        FROM detail_pergerakan_stok a
-                                        INNER JOIN tmp_detail_kite b ON b.id=a.id_detail_kj
-                                        INNER JOIN tbl_kite c ON c.id=b.id_kite
+                $sqldt1 = sqlsrv_query($con," SELECT sum(a.weight) as kgs,sum(a.yard_)as yds,sum(b.netto)as pcs,b.ukuran,c.user_packing ,c.warna
+                                        FROM db_qc.detail_pergerakan_stok a
+                                        INNER JOIN db_qc.tmp_detail_kite b ON b.id=a.id_detail_kj
+                                        INNER JOIN db_qc.tbl_kite c ON c.id=b.id_kite
                                         WHERE refno='".$rowd['listno']."' ");
-                $r1 = mysqli_fetch_array($sqldt1);
-                $sqlsi = mysqli_query($con,"SELECT * FROM tbl_exim_si WHERE no_si='".$rowd['no_si']."'");
-                $r2 = mysqli_fetch_array($sqlsi);
+                $r1 = sqlsrv_fetch_array($sqldt1, SQLSRV_FETCH_ASSOC);
+                if ($r1 === false) {
+                  die(print_r(sqlsrv_errors(), true));
+                }
+                $sqlsi = sqlsrv_query($con,"SELECT * FROM db_qc.tbl_exim_si WHERE no_si='".$rowd['no_si']."'");
+                $r2 = sqlsrv_fetch_array($sqlsi, SQLSRV_FETCH_ASSOC);
               ?>
                 <tr>
                   <td style="vertical-align: middle;" align="center"><?php echo $no; ?></td>
@@ -222,15 +228,15 @@ if ($Thn != "") {
                   <td style="vertical-align: middle;"><?php
                                                       $amout = 0;
                                                       $amt = 0;
-                                                      $sqldt = mysqli_query($con,"SELECT * FROM tbl_exim_detail WHERE id_list='".$rowd['id']."'");
-                                                      while ($dt = mysqli_fetch_array($sqldt)) {
-                                                        $sqldt1 = mysqli_query($con," SELECT sum(a.weight) as kgs,sum(a.yard_)as yds,sum(b.netto)as pcs,b.ukuran,c.user_packing ,c.warna
+                                                      $sqldt = sqlsrv_query($con,"SELECT * FROM tbl_exim_detail WHERE id_list='".$rowd['id']."'");
+                                                      while ($dt = sqlsrv_fetch_array($sqldt)) {
+                                                        $sqldt1 = sqlsrv_query($con," SELECT sum(a.weight) as kgs,sum(a.yard_)as yds,sum(b.netto)as pcs,b.ukuran,c.user_packing ,c.warna
                         FROM detail_pergerakan_stok a
                         INNER JOIN tmp_detail_kite b ON b.id=a.id_detail_kj
                         INNER JOIN tbl_kite c ON c.id=b.id_kite
                         WHERE refno='".$rowd['listno']."'  AND a.lott='".$dt['id']."'
                         GROUP BY b.ukuran,c.warna ");
-                                                        $dt1 = mysqli_fetch_array($sqldt1);
+                                                        $dt1 = sqlsrv_fetch_array($sqldt1);
 
                                                         if ($dt['price_by'] == "KGS") {
                                                           $amout = round($dt1['kgs'] * $dt['unit_price'], 2);
@@ -252,10 +258,10 @@ if ($Thn != "") {
                   <td style="vertical-align: middle;" align="center"><?php echo $rowd['fasilitas']; ?></td>
                   <td style="vertical-align: middle;"><?php echo strtoupper($r2['forwarder']); ?></td>
                   <td style="vertical-align: middle;" align="center"><?php
-                                                                      $sqlcek = mysqli_query($con,"SELECT a.id,b.id_list FROM tbl_exim a
+                                                                      $sqlcek = sqlsrv_query($con,"SELECT a.id,b.id_list FROM tbl_exim a
                                                               LEFT JOIN tbl_exim_detail b ON a.id=b.id_list
                                                               WHERE listno='".$rowd['listno']."'");
-                                                                      $ck = mysqli_fetch_array($sqlcek);
+                                                                      $ck = sqlsrv_fetch_array($sqlcek);
                                                                       if ($ck['id_list'] != "") {
                                                                         if ($rowd['no_sa'] != "") {
                                                                           echo "<span class='label label-warning'>BUAT SA</span>";
@@ -290,10 +296,10 @@ if ($Thn != "") {
                                                                       }
                                                                       ?></td>
                   <td style="vertical-align: middle;" align="center"><?php
-                          $sqlcek = mysqli_query($con,"SELECT a.id,b.id_list FROM tbl_exim a
+                          $sqlcek = sqlsrv_query($con,"SELECT a.id,b.id_list FROM tbl_exim a
                                                               LEFT JOIN tbl_exim_detail b ON a.id=b.id_list
                                                               WHERE listno='".$rowd['listno']."'");
-                                                                      $ck = mysqli_fetch_array($sqlcek);
+                                                                      $ck = sqlsrv_fetch_array($sqlcek);
                                                                       if ($ck['id_list'] != "") {
                                                                         if ($rowd['no_sa'] != "") {
                                                                           echo "<span class='label bg-fuchsia'>ARSIP</span>";
@@ -384,8 +390,8 @@ if ($Thn != "") {
                       <div class="col-lg-9 input-group">
                         <select type="text" name="nm_messrs" id="nm_messrs" class="form-control" style="width: 100%;">
                           <option value="">-Pilih-</option>
-                          <?php $qrymes = mysqli_query($con,"SELECT * FROM tbl_exim_buyer ORDER BY nama ASC");
-                          while ($rmes = mysqli_fetch_assoc($qrymes)) { ?>
+                          <?php $qrymes = sqlsrv_query($con,"SELECT * FROM tbl_exim_buyer ORDER BY nama ASC");
+                          while ($rmes = sqlsrv_fetch_assoc($qrymes)) { ?>
                             <option value="<?php echo strtoupper($rmes['nama']); ?>" <?php if ($_GET['mess'] != "") {
                                                                                       if ($_GET['mess'] == $rmes['nama']) {
                                                                                         echo "SELECTED";
@@ -410,8 +416,8 @@ if ($Thn != "") {
                       <div class="col-lg-9 input-group">
                         <select class="form-control" name="nm_consgne" id="nm_consgne" style="width: 100%;">
                           <option value="">-Pilih-</option>
-                          <?php $qrycon = mysqli_query($con,"SELECT * FROM tbl_exim_buyer ORDER BY nama ASC");
-                          while ($rcon = mysqli_fetch_assoc($qrycon)) { ?>
+                          <?php $qrycon = sqlsrv_query($con,"SELECT * FROM tbl_exim_buyer ORDER BY nama ASC");
+                          while ($rcon = sqlsrv_fetch_assoc($qrycon)) { ?>
                             <option value="<?php echo strtoupper($rcon['nama']); ?>" 
 							<?php if ($_GET['cons'] != "") {                                                                              if ($_GET['cons'] == $rcon['nama']) {                                                                 echo "SELECTED";  }
                                                                                     } else {
@@ -600,8 +606,8 @@ if ($Thn != "") {
                       <div class="col-lg-9 input-group">
                         <select class="form-control input-sm" name="no_si" id="no_si">
                           <option value="">Pilih</option>
-                          <?php $qrysi = mysqli_query($con,"SELECT * FROM tbl_exim_si");
-                          while ($rsi = mysqli_fetch_assoc($qrysi)) { ?>
+                          <?php $qrysi = sqlsrv_query($con,"SELECT * FROM tbl_exim_si");
+                          while ($rsi = sqlsrv_fetch_assoc($qrysi)) { ?>
                             <option value="<?php echo $rsi['no_si']; ?>" <?php if ($row['no_si'] == $rsi['no_si']) {
                                                                           echo "SELECTED";
                                                                         } ?>><?php echo $rsi['no_si']; ?></option>

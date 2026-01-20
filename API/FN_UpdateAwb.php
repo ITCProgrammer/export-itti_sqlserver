@@ -7,7 +7,7 @@ if (isset($_POST['save']) == 'SAVE') {
     $awb = str_replace("'", "''", $_POST['no_awb']);
     $tglawb = $_POST['tgl_awb'];
     $tglmkt = $_POST['tgl_mkt'];
-    $qry = mysqli_query($con,"UPDATE tbl_exim SET
+    $qry = sqlsrv_query($con,"UPDATE tbl_exim SET
 	`no_awb`='$awb',
 	`tgl_awb`='$tglawb',
 	`tgl_mkt`='$tglmkt',

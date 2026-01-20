@@ -1,6 +1,6 @@
 <?php
     $modal_id=$_GET['id'];
-    $modal1=mysqli_query($con,"DELETE FROM `tbl_exim_buyer` WHERE id='$modal_id' ");
+    $modal1=sqlsrv_query($con,"DELETE FROM `tbl_exim_buyer` WHERE id='$modal_id' ");
     if ($modal1) {
         echo "<script>window.location='?p=Buyer';</script>";
     } else {

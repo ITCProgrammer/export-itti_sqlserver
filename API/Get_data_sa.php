@@ -1,9 +1,9 @@
 <?php
 session_start();
 include '../koneksi.php';
-$sqldt = mysqli_query($con,"SELECT * FROM tbl_exim_sa WHERE no_sa='".$_POST['id']."'");
-$count = mysqli_num_rows($sqldt);
-$data = mysqli_fetch_array($sqldt);
+$sqldt = sqlsrv_query($con,"SELECT * FROM tbl_exim_sa WHERE no_sa='".$_POST['id']."'");
+$count = sqlsrv_num_rows($sqldt);
+$data = sqlsrv_fetch_array($sqldt);
 
 if ($data['author'] != "") {
     $author =  $data['author'];

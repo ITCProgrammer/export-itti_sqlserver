@@ -12,7 +12,7 @@ if($_POST){
 			echo " <script>alert('Not Match Re-New Password!!');window.location='?p=User';</script>";
 			}else
 			{
-				$sqlupdate=mysqli_query($con,"UPDATE `user_login` SET 
+				$sqlupdate=sqlsrv_query($con,"UPDATE `user_login` SET 
 				`user`='$user', 
 				`password`='$pass',
 				`level`='$level',

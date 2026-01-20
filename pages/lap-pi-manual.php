@@ -53,15 +53,15 @@ include "koneksi.php";
               </thead>
               <tbody>
                 <?php
-  $sql=mysqli_query($con,"SELECT a.*,if(locate('Closed',group_concat(DISTINCT b.`status` ORDER BY b.`status` ASC))='1','Closed','On Going') as `status`,sum(b.kg) as kg FROM tbl_exim_pim  a 
+  $sql=sqlsrv_query($con,"SELECT a.*,if(locate('Closed',group_concat(DISTINCT b.`status` ORDER BY b.`status` ASC))='1','Closed','On Going') as `status`,sum(b.kg) as kg FROM tbl_exim_pim  a 
 INNER JOIN tbl_exim_pim_detail b ON a.id=b.id_pi
 GROUP BY a.id
 ORDER BY if(locate('Closed',group_concat(DISTINCT b.`status` ORDER BY b.`status` ASC))='1','Closed','On Going') DESC, a.tgl_terima ASC");
-  while ($r=mysqli_fetch_array($sql)) {
+  while ($r=sqlsrv_fetch_array($sql)) {
       $no++;
       $bgcolor = ($col++ & 1) ? 'gainsboro' : 'antiquewhite'; 
-		$qAct=mysqli_query($con,"SELECT sum(kg) as kg FROM tbl_exim_cim_detail WHERE no_pi='".$r['no_pi']."'");
-	  	$dAct=mysqli_fetch_array($qAct);
+		$qAct=sqlsrv_query($con,"SELECT sum(kg) as kg FROM tbl_exim_cim_detail WHERE no_pi='".$r['no_pi']."'");
+	  	$dAct=sqlsrv_fetch_array($qAct);
 	?>
                 <tr bgcolor="<?php echo $bgcolor; ?>">
                   <td align="center"><?php echo $no; ?></td>

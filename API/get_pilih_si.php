@@ -7,9 +7,9 @@ if ($_POST['no'] != "") {
 } else {
     $where = " id='".$_POST['id']."' ";
 }
-$sqlcek = mysqli_query($con,"SELECT * FROM tbl_exim_si WHERE $where LIMIT 1");
-$row = mysqli_fetch_array($sqlcek);
-$count = mysqli_num_rows($sqlcek);
+$sqlcek = sqlsrv_query($con,"SELECT * FROM tbl_exim_si WHERE $where LIMIT 1");
+$row = sqlsrv_fetch_array($sqlcek);
+$count = sqlsrv_num_rows($sqlcek);
 
 if ($count > 0) {
     $data = array(

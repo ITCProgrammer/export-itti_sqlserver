@@ -7,21 +7,21 @@ $Konversi	= isset($_POST['konversi']) ? $_POST['konversi'] : '';
 $KO			= isset($_POST['no_ko']) ? $_POST['no_ko'] : '';
 $Note	    = isset($_POST['note']) ? $_POST['note'] : '';
 
-$sqlDCI = mysqli_query($con,"SELECT c.po,c.item,c.color,a.no_pi,b.no_invoice,a.kg,a.panjang,a.satuan,a.pcs,a.id FROM tbl_exim_cim_detail a 
+$sqlDCI = sqlsrv_query($con,"SELECT c.po,c.item,c.color,a.no_pi,b.no_invoice,a.kg,a.panjang,a.satuan,a.pcs,a.id FROM tbl_exim_cim_detail a 
 INNER JOIN tbl_exim_cim b ON b.id=a.id_cim
 LEFT JOIN tbl_exim_pim_detail c ON a.id_pimd=c.id
 WHERE a.id_cim='".$_GET['DCI']."' AND a.id='".$_GET['id']."' ORDER BY a.id ASC");
-$rDCI = mysqli_fetch_array($sqlDCI);
+$rDCI = sqlsrv_fetch_array($sqlDCI);
 $po = str_replace("'", "''", $rDCI['po']);
 
-$qrybclkt = mysqli_query($con,"SELECT sum(bb_terpakai) as pakai FROM tbl_exim_pengembalian WHERE id_cimd='".$_GET['id']."'");
-$rBCLKT = mysqli_fetch_array($qrybclkt);
+$qrybclkt = sqlsrv_query($con,"SELECT sum(bb_terpakai) as pakai FROM tbl_exim_pengembalian WHERE id_cimd='".$_GET['id']."'");
+$rBCLKT = sqlsrv_fetch_array($qrybclkt);
 $sisa = $data['berat'] - $rBCLKT['pakai'];
-$sqlInv = mysqli_query($con,"SELECT * FROM tbl_exim_cim WHERE id='".$_GET['id']."' LIMIT 1");
-$dInv = mysqli_fetch_array($sqlInv);
-$sqlCek = mysqli_query($con,"SELECT * FROM tbl_exim_pengembalian WHERE id='".$_GET['idk']."'");
-$Cek = mysqli_num_rows($sqlCek);
-$rCek = mysqli_fetch_array($sqlCek);
+$sqlInv = sqlsrv_query($con,"SELECT * FROM tbl_exim_cim WHERE id='".$_GET['id']."' LIMIT 1");
+$dInv = sqlsrv_fetch_array($sqlInv);
+$sqlCek = sqlsrv_query($con,"SELECT * FROM tbl_exim_pengembalian WHERE id='".$_GET['idk']."'");
+$Cek = sqlsrv_num_rows($sqlCek);
+$rCek = sqlsrv_fetch_array($sqlCek);
 
 if ($Bahan != "") {
 	$idksng = " ";
@@ -108,12 +108,12 @@ $data1 = sqlsrv_fetch_array($qry1,SQLSRV_FETCH_ASSOC);
 			} else {
 				$KNV = $Konversi;
 			}
-			$qryBK = mysqli_query($con,"SELECT a.no_pend,a.tgl_pend,a.kurs,b.kd_benang_fs,b.tarif,b.no_urut,b.amount,b.qty,ROUND(b.amount/b.qty,2) as price,( ROUND( b.amount / b.qty, 2 ) * a.kurs * b.tarif ) AS bm 
+			$qryBK = sqlsrv_query($con,"SELECT a.no_pend,a.tgl_pend,a.kurs,b.kd_benang_fs,b.tarif,b.no_urut,b.amount,b.qty,ROUND(b.amount/b.qty,2) as price,( ROUND( b.amount / b.qty, 2 ) * a.kurs * b.tarif ) AS bm 
 			from tbl_exim_import a INNER JOIN tbl_exim_import_detail b ON a.id=b.id_import
 			WHERE b.kd_benang_in='$BHN'");
-			$rBK = mysqli_fetch_array($qryBK);
-			$qryKONV = mysqli_query($con,"SELECT * FROM tk_konv_imp_temp WHERE SUBSTR(KD_KONV_EKS,12,20)='$Item' and KD_KONV_IMP='".$rBK['kd_benang_fs']."' AND SUBSTR(KD_KONV_EKS,1,10)='$KNV' LIMIT 1");
-			$rKON = mysqli_fetch_array($qryKONV);
+			$rBK = sqlsrv_fetch_array($qryBK);
+			$qryKONV = sqlsrv_query($con,"SELECT * FROM tk_konv_imp_temp WHERE SUBSTR(KD_KONV_EKS,12,20)='$Item' and KD_KONV_IMP='".$rBK['kd_benang_fs']."' AND SUBSTR(KD_KONV_EKS,1,10)='$KNV' LIMIT 1");
+			$rKON = sqlsrv_fetch_array($qryKONV);
 			?>
 			<div class="form-group">
 				<label for="bahan" class="col-sm-2 control-label">Bahan Baku</label>
@@ -154,7 +154,7 @@ $data1 = sqlsrv_fetch_array($qry1,SQLSRV_FETCH_ASSOC);
 					<div class="input-group">
 						<select name="konversi" class="form-control select2">
 							<option value=""></option>
-							<?php $qryKON = mysqli_query($con,"SELECT a.ID_KONV, a.KD_KONV_EKS 
+							<?php $qryKON = sqlsrv_query($con,"SELECT a.ID_KONV, a.KD_KONV_EKS 
 FROM
 	tk_konv_eks_temp a
 INNER JOIN tk_konv_imp_temp b ON a.KD_KONV_EKS=b.KD_KONV_EKS	
@@ -163,7 +163,7 @@ WHERE
 AND b.KD_KONV_IMP='".$rBK['kd_benang_fs']."'	
 ORDER BY
 	a.ID_KONV DESC");
-							while ($rKONV = mysqli_fetch_array($qryKON)) { ?>
+							while ($rKONV = sqlsrv_fetch_array($qryKON)) { ?>
 								<option value="<?php echo $rKONV['ID_KONV']; ?>" <?php if ($Konversi == $rKONV['ID_KONV']) {
 																					echo "SELECTED";
 																				} ?>><?php echo $rKONV['ID_KONV']; ?></option>
@@ -282,7 +282,7 @@ ORDER BY
 
 			</div>
 			<div class="box-body">
-				<?php $qry3 = mysqli_query($con,"SELECT * FROM tbl_exim_pengembalian WHERE id_cimd='".$_GET['id']."'"); ?>
+				<?php $qry3 = sqlsrv_query($con,"SELECT * FROM tbl_exim_pengembalian WHERE id_cimd='".$_GET['id']."'"); ?>
 				<table id="example2" class="table table-bordered table-hover table-striped" width="100%">
 					<thead class="bg-green">
 						<tr>
@@ -322,7 +322,7 @@ ORDER BY
 						<?php
 						$c = 1;
 						$no = 1;
-						while ($r = mysqli_fetch_array($qry3)) {
+						while ($r = sqlsrv_fetch_array($qry3)) {
 							$bgcolor = ($c++ & 1) ? '#33CCFF' : '#FFCC99';
 						?>
 							<tr bgcolor="<?php echo $bgcolor; ?>">
@@ -372,7 +372,7 @@ ORDER BY
 if (isset($_POST['save'])) {
 	$note = str_replace("'", "''", $_POST['note']);
 	$note1 = str_replace("'", "''", $_POST['komkt']);
-	$qry1 = mysqli_query($con,"INSERT INTO tbl_exim_pengembalian SET
+	$qry1 = sqlsrv_query($con,"INSERT INTO tbl_exim_pengembalian SET
 		id_cimd='".$_GET['id']."',
 		ko='".$_POST['no_ko']."',
 		ko_mk='$note1',

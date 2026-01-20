@@ -2,7 +2,7 @@
 session_start();
 include '../koneksi.php';
 
-$sql = mysqli_query($con,"SELECT trim(no_mc) as no_mc,nokk
+$sql = sqlsrv_query($con,"SELECT trim(no_mc) as no_mc,nokk
 FROM `tbl_kite`
 WHERE `tbl_kite`.`no_order` = '".$_POST['no_order']."' 
 AND `tbl_kite`.`no_po` like '".$_POST['no_po']."' 
@@ -15,7 +15,7 @@ $data = mysql_fetch_array($sql);
 $count = mysql_num_rows($sql);
 
 
-$sqlN = mysqli_query($con,"SELECT
+$sqlN = sqlsrv_query($con,"SELECT
     refno,
     count(refno) AS rol,
     sum(weight) AS qty

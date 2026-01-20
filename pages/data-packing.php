@@ -1,8 +1,8 @@
 <?php
 $ganti= $_POST['template'];
-$qryKK=sqlsrv_query($conn,"select ID,DocumentNo from ProcessControlBatches where DocumentNo='".$_GET['lot']."'");
+$qryKK=sqlsrv_query($conn,"select ID,DocumentNo from db_qc.ProcessControlBatches where DocumentNo='".$_GET['lot']."'");
 $rKK=sqlsrv_fetch_array($qryKK,SQLSRV_FETCH_ASSOC);
-$qryPos=sqlsrv_query($conn,"select TOP 1 p.*,d.DepartmentName from PCCardPosition p left join
+$qryPos=sqlsrv_query($conn,"select TOP 1 p.*,d.DepartmentName from db_qc.PCCardPosition p left join
 Departments d on d.ID=p.DepartmentID
 where p.PCBID='".$rKK['ID']."' and status='1' order by p.Dated DESC");
 $rPos=sqlsrv_fetch_array($qryPos,SQLSRV_FETCH_ASSOC);
@@ -14,17 +14,17 @@ FROM `tbl_kite`
 INNER JOIN `detail_kite` ON `tbl_kite`.`nokk` = `detail_kite`.`nokkKite` where  `tbl_kite`.`no_order`='".$_GET['bon']."'
 group by `detail_kite`.`nokkkite`,`detail_kite`.`no_roll`
 order by `detail_kite`.`nokkkite`,`detail_kite`.`no_roll` asc";
-$data=mysqli_query($con,$sql);
+$data=sqlsrv_query($con,$sql);
 $sqlrd="SELECT *
 FROM `tbl_kite`
 INNER JOIN `detail_kite` ON `tbl_kite`.nokk = `detail_kite`.nokkKite where  `tbl_kite`.nokk='".$_GET['kkno']."' limit 1";
-$datard=mysqli_query($con,$sqlrd);
-$rd2=mysqli_fetch_array($datard);
-$slgn=mysqli_query($con,"SELECT `detail_kite`.`id` as kd,`detail_kite`.`sisa`,`detail_kite`.`grade`,`detail_kite`.`nokkKite`,`detail_kite`.`no_roll`,`detail_kite`.`net_wight`,`detail_kite`.`yard_`, `tbl_kite`.`no_warna`,`tbl_kite`.`warna`,`tbl_kite`.`no_lot`,`tbl_kite`.`pelanggan`
+$datard=sqlsrv_query($con,$sqlrd);
+$rd2=sqlsrv_fetch_array($datard);
+$slgn=sqlsrv_query($con,"SELECT `detail_kite`.`id` as kd,`detail_kite`.`sisa`,`detail_kite`.`grade`,`detail_kite`.`nokkKite`,`detail_kite`.`no_roll`,`detail_kite`.`net_wight`,`detail_kite`.`yard_`, `tbl_kite`.`no_warna`,`tbl_kite`.`warna`,`tbl_kite`.`no_lot`,`tbl_kite`.`pelanggan`
 FROM `tbl_kite`
 INNER JOIN `detail_kite` ON `tbl_kite`.`nokk` = `detail_kite`.`nokkKite` where  `tbl_kite`.`nokk`='".$_GET['kkno']."' group by `detail_kite`.`nokkkite`,`detail_kite`.`no_roll`
 order by `detail_kite`.`nokkkite`,`detail_kite`.`no_roll` asc");
-$rg=mysqli_fetch_array($slgn);
+$rg=sqlsrv_fetch_array($slgn);
 if($_GET['bon']!=""){$noWhere=" ";}else{$noWhere=" AND `tbl_kite`.`id`='' ";}
 ?>
 <form class="form-horizontal" action="" method="post" enctype="multipart/form-data" name="form1">
@@ -36,8 +36,8 @@ if($_GET['bon']!=""){$noWhere=" ";}else{$noWhere=" AND `tbl_kite`.`id`='' ";}
 			</div>
 		</div>
 		<?php
-    $sql11=mysqli_query($con," SELECT * FROM tbl_exim_pim ");
-    $r11=mysqli_fetch_array($sql11);
+    $sql11=sqlsrv_query($con," SELECT * FROM tbl_exim_pim ");
+    $r11=sqlsrv_fetch_array($sql11);
      
      ?>
 		<div class="box-body">
@@ -56,11 +56,11 @@ if($_GET['bon']!=""){$noWhere=" ";}else{$noWhere=" AND `tbl_kite`.`id`='' ";}
       <option value="">PILIH</option>
       <?php 
 		$byr=str_replace("'","''",$_GET['byer']);
-		$sqllanggan=mysqli_query($con,"SELECT trim(pelanggan) as langgan
+		$sqllanggan=sqlsrv_query($con,"SELECT trim(pelanggan) as langgan
 FROM `tbl_kite`
 WHERE `tbl_kite`.`no_order` = '".$_GET['bon']."' $noWhere 
 GROUP BY pelanggan");
-while($rp=mysqli_fetch_array($sqllanggan)){?>
+while($rp=sqlsrv_fetch_array($sqllanggan)){?>
       <option value="<?php echo urlencode($rp['langgan']);?>" <?php if($rp['langgan']==$_GET['byer']){echo"selected";}?>><?php echo $rp['langgan'];?></option>
       <?php  } ?>
       
@@ -73,11 +73,11 @@ while($rp=mysqli_fetch_array($sqllanggan)){?>
 				  <select name="nopo" class="form-control" onchange="window.location='index1.php?p=Data-Packing&amp;bon=<?php echo $_GET['bon'];?>&amp;byer=<?php echo $byr;?>&amp;nopo='+this.value">
 				    <option value="">PILIH</option>
 				    <?php 
-		$sqlnopo=mysqli_query($con,"SELECT trim(no_po) as no_po,nokk
+		$sqlnopo=sqlsrv_query($con,"SELECT trim(no_po) as no_po,nokk
 FROM `tbl_kite`
 WHERE `tbl_kite`.`no_order` ='".$_GET['bon']."' AND `tbl_kite`.`pelanggan` like '%$byr%' $noWhere
 GROUP BY no_po");
-while($rp=mysqli_fetch_array($sqlnopo)){?>
+while($rp=sqlsrv_fetch_array($sqlnopo)){?>
 				    <option value="<?php echo urlencode($rp['no_po']);?>" <?php if($rp['no_po']==$_GET['nopo']){echo"selected";}?> ><?php echo $rp['no_po'];?></option>
 				    <?php  } ?>
 			      </select>
@@ -89,11 +89,11 @@ while($rp=mysqli_fetch_array($sqlnopo)){?>
 				  <select name="itm" id="itm" class="form-control"  onchange="window.location='index1.php?p=Data-Packing&amp;bon=<?php echo $_GET['bon'];?>&amp;byer=<?php echo $byr;?>&amp;nopo=<?php echo urlencode($_GET['nopo']);?>&amp;itm='+this.value">
 				    <option value="">PILIH</option>
 				    <?php
-		$sqlitm=mysqli_query($con,"SELECT trim(no_item) as itm
+		$sqlitm=sqlsrv_query($con,"SELECT trim(no_item) as itm
 FROM `tbl_kite`
 WHERE `tbl_kite`.`no_order` = '".$_GET['bon']."' AND `tbl_kite`.`pelanggan` like '%$byr%' AND `tbl_kite`.`no_po` like '%".$_GET['nopo']."%' $noWhere 
 GROUP BY no_item");
-while($rp=mysqli_fetch_array($sqlitm)){?>
+while($rp=sqlsrv_fetch_array($sqlitm)){?>
 				    <option value="<?php echo $rp['itm'];?>" <?php if($rp['itm']==$_GET['itm']){echo"selected";}?>><?php echo $rp['itm'];?></option>
 				    <?php  } ?>
 			      </select>
@@ -105,12 +105,12 @@ while($rp=mysqli_fetch_array($sqlitm)){?>
 				  <select name="warna" id="warna" class="form-control" onchange="window.location='index1.php?p=Data-Packing&amp;bon=<?php echo $_GET['bon'];?>&amp;byer=<?php echo $_GET['byer'];?>&amp;nopo=<?php echo urlencode($_GET['nopo']);?>&amp;itm=<?php echo $_GET['itm'];?>&amp;wrn='+this.value">
 				    <option value="">PILIH</option>
 				    <?php 
-		$sqlwrn=mysqli_query($con,"SELECT trim(warna) as wrn
+		$sqlwrn=sqlsrv_query($con,"SELECT trim(warna) as wrn
 FROM `tbl_kite`
 WHERE `tbl_kite`.`no_order` = '".$_GET['bon']."' AND `tbl_kite`.`pelanggan` like '%$byr%' 
 AND `tbl_kite`.`no_po` like '%".$_GET['nopo']."%' AND `tbl_kite`.`no_item` like '%".$_GET['itm']."%' $noWhere
 GROUP BY warna");
-while($rp=mysqli_fetch_array($sqlwrn)){?>
+while($rp=sqlsrv_fetch_array($sqlwrn)){?>
 				    <option value="<?php echo $rp['wrn'];?>" <?php if($rp['wrn']==$_GET['wrn']){echo"selected";}?>><?php echo $rp['wrn'];?></option>
 				    <?php  } ?>
 			      </select>
@@ -124,12 +124,12 @@ while($rp=mysqli_fetch_array($sqlwrn)){?>
 				  <select name="lot" id="lot" class="form-control"  onchange="window.location='index1.php?p=Data-Packing&amp;bon=<?php echo $_GET['bon'];?>&amp;byer=<?php echo $_GET['byer'];?>&amp;nopo=<?php echo urlencode($_GET['nopo']);?>&amp;itm=<?php echo $_GET['itm'];?>&amp;wrn=<?php echo $_GET['wrn'];?>&amp;lot='+this.value">
 				    <option value="">PILIH</option>
 				    <?php
-		$sqllot=mysqli_query($con," SELECT trim(no_lot) as lot,nokk
+		$sqllot=sqlsrv_query($con," SELECT trim(no_lot) as lot,nokk
 FROM `tbl_kite`
 WHERE `tbl_kite`.`no_order` = '".$_GET['bon']."' AND `tbl_kite`.`pelanggan` = '$byr' 
 AND `tbl_kite`.`no_po` = '".$_GET['nopo']."' AND `tbl_kite`.`no_item` = '".$_GET['itm']."' AND `tbl_kite`.`warna` = '".$_GET['wrn']."' $noWhere 
 ORDER BY no_lot ASC");
-while($rp=mysqli_fetch_array($sqllot)){?>
+while($rp=sqlsrv_fetch_array($sqllot)){?>
 				    <option value="<?php echo $rp['nokk'];?>" <?php if($rp['nokk']==$_GET['lot']){echo"selected";}?>><?php echo $rp['lot'];?></option>
 				    <?php  } ?>
 			      </select>
@@ -137,7 +137,7 @@ while($rp=mysqli_fetch_array($sqllot)){?>
 				<div class="col-sm-6">
 				Posisi: <?php if($dtNote=="KK Oke"){echo "<span class='label label-success'>".$dtNote."</span><br>";}else{echo "<span class='label label-danger'>".$dtNote."</span><br>";} 
 				if($_GET['lot']!=""){	
-				$qryckk=mysqli_query($con,"SELECT
+				$qryckk=sqlsrv_query($con,"SELECT
 	count( b.sn ) AS rol,
 	sum( b.weight ) AS kg,
 IF
@@ -151,7 +151,7 @@ WHERE
 	AND b.nokk = '".$_GET['lot']."' 
 GROUP BY
 	a.id");
-					while($rckk=mysqli_fetch_array($qryckk)){
+					while($rckk=sqlsrv_fetch_array($qryckk)){
 						if($rckk['ket']=="kain masuk"){$wrn1="label-primary";}else{$wrn1="label-danger";}
 						echo "<span class='label $wrn1'>".$rckk['ket'].": ".$rckk['rol']." Rol ".$rckk['kg']." kgs tgl: ".$rckk['tgl']."</span><br>";
 					}
@@ -160,15 +160,15 @@ GROUP BY
 				</div>	
 			</div>	
 <?php 
-	$sqlpack=mysqli_query($con,"SELECT trim(no_mc) as no_mc,nokk
+	$sqlpack=sqlsrv_query($con,"SELECT trim(no_mc) as no_mc,nokk
 FROM `tbl_kite`
 WHERE `tbl_kite`.`no_order` = '".$_GET['bon']."' AND `tbl_kite`.`pelanggan` = '$byr' 
 AND `tbl_kite`.`no_po` like '%".$_GET['nopo']."%' AND `tbl_kite`.`no_item` = '".$_GET['itm']."' AND `tbl_kite`.`warna` = '".$_GET['wrn']."' AND `tbl_kite`.`nokk` = '".$_GET['lot']."'
 GROUP BY no_mc");
-$pk=mysqli_fetch_array($sqlpack);
-//$sqltmpt=mysqli_query($con,"SELECT tempat from mutasi_kain where nokk='$pk[nokk]'");
-$sqltmpt=mysqli_query($con,"select GROUP_CONCAT(distinct lokasi) as tempat from db_qc.detail_pergerakan_stok where `status`='1' and nokk='".$pk['nokk']."'");		
-$tmpt=mysqli_fetch_array($sqltmpt);
+$pk=sqlsrv_fetch_array($sqlpack);
+//$sqltmpt=sqlsrv_query($con,"SELECT tempat from mutasi_kain where nokk='$pk[nokk]'");
+$sqltmpt=sqlsrv_query($con,"select GROUP_CONCAT(distinct lokasi) as tempat from db_qc.detail_pergerakan_stok where `status`='1' and nokk='".$pk['nokk']."'");		
+$tmpt=sqlsrv_fetch_array($sqltmpt);
 ?>				
 			<div class="form-group">
 				<label for="packing" class="col-sm-3 control-label">Packing</label>
@@ -210,7 +210,7 @@ $tmpt=mysqli_fetch_array($sqltmpt);
 			<div class="box-body">
 <?php if($_POST['template']=="" or $_POST['template']=="1"){?>
 <?php
-$snkk1=mysqli_query($con,"SELECT
+$snkk1=sqlsrv_query($con,"SELECT
 	count(b.weight) as roll,
 	sum(b.weight) as berat,sum(b.yard_) as yard
 FROM
@@ -220,7 +220,7 @@ LEFT JOIN tbl_kite c ON b.nokk = c.nokk
 WHERE
 	b.sisa !='FKTH' AND b.sisa !='TH' AND b.sisa !='FOC' AND a.typestatus='2'
 AND c.nokk='".$pk['nokk']."'");
-$rowkk1=mysqli_fetch_array($snkk1);
+$rowkk1=sqlsrv_fetch_array($snkk1);
 ?>
   *<b> Total Roll <?php echo $rowkk1['roll']; ?> ,Total Berat <?php echo number_format($rowkk1['berat'],'2'); ?> Kg, Total Yard <?php echo number_format($rowkk1['yard'],'2'); ?></b><br><br>
 <table id="example5" class="table table-bordered table-hover table-striped" width="100%">
@@ -239,7 +239,7 @@ $rowkk1=mysqli_fetch_array($snkk1);
 	</thead>
 	<tbody>
    <?php
-      $datacek=mysqli_query($con,"SELECT
+      $datacek=sqlsrv_query($con,"SELECT
 	*, b.id AS kd, b.no_roll as `rolno`
 FROM
 	pergerakan_stok a
@@ -262,7 +262,7 @@ ORDER BY
 	$no=1;
 	$n=1;
 	$c=0;
-	 while($rowd=mysqli_fetch_array($datacek)){ 
+	 while($rowd=sqlsrv_fetch_array($datacek)){ 
 		
 		    $bgcolor = ($c++ & 1) ? '#33CCFF' : '#FFCC99';
 			if($_GET['pk']=="Rolls"){$gw=0.6;}else{$gw=0.2;}
@@ -315,7 +315,7 @@ ORDER BY
   </table>
   <?php }else if($_POST['template']=="2"){ ?>
   <?php
-$snkk1=mysqli_query($con,"SELECT
+$snkk1=sqlsrv_query($con,"SELECT
 	count(b.weight) as roll,
 	sum(b.weight) as berat,sum(b.yard_) as yard
 FROM
@@ -325,7 +325,7 @@ LEFT JOIN tbl_kite c ON b.nokk = c.nokk
 WHERE
 	b.sisa !='FKTH' AND b.sisa !='TH' AND b.sisa !='FOC' AND a.typestatus='2'
 AND c.nokk='".$pk['nokk']."'");
-$rowkk1=mysqli_fetch_array($snkk1);
+$rowkk1=sqlsrv_fetch_array($snkk1);
 ?>
   *<b> Total Roll <?php echo $rowkk1['roll']; ?> ,Total Berat <?php echo number_format($rowkk1['berat'],'2'); ?> Kg, Total Yard <?php echo number_format($rowkk1['yard'],'2'); ?></b><br><br>
 <table id="example5" class="table table-bordered table-hover table-striped" width="100%">
@@ -342,7 +342,7 @@ $rowkk1=mysqli_fetch_array($snkk1);
 	</thead>
 	<tbody>
    <?php
-      $datacek=mysqli_query($con,"SELECT
+      $datacek=sqlsrv_query($con,"SELECT
 	*, b.id AS kd, b.no_roll as `rolno`
 FROM
 	pergerakan_stok a
@@ -365,7 +365,7 @@ ORDER BY
 	$no=1;
 	$n=1;
 	$c=0;
-	 while($rowd=mysqli_fetch_array($datacek)){ 
+	 while($rowd=sqlsrv_fetch_array($datacek)){ 
 		
 		    $bgcolor = ($c++ & 1) ? '#33CCFF' : '#FFCC99';
 			if($_GET['pk']=="Rolls"){$gw=0.6;}else{$gw=0.2;}
@@ -414,7 +414,7 @@ ORDER BY
   </table>
   <?php }else if($_POST['template']=="3"){?>
 <?php
-$snkk1=mysqli_query($con,"SELECT
+$snkk1=sqlsrv_query($con,"SELECT
 	count(b.weight) as roll,
 	sum(b.weight) as berat,sum(b.yard_) as yard
 FROM
@@ -424,7 +424,7 @@ LEFT JOIN tbl_kite c ON b.nokk = c.nokk
 WHERE
 	b.sisa !='FKTH' AND b.sisa !='TH' AND b.sisa !='FOC' AND a.typestatus='2'
 AND c.nokk='".$pk['nokk']."'");
-$rowkk1=mysqli_fetch_array($snkk1);
+$rowkk1=sqlsrv_fetch_array($snkk1);
 ?>
   *<b> Total Roll <?php echo $rowkk1['roll']; ?> ,Total Berat <?php echo number_format($rowkk1['berat'],'2'); ?> Kg, Total Yard <?php echo number_format($rowkk1['yard'],'2'); ?></b><br><br>
 <table id="example5" class="table table-bordered table-hover table-striped" width="100%">
@@ -443,7 +443,7 @@ $rowkk1=mysqli_fetch_array($snkk1);
 	</thead>
 	<tbody>
    <?php
-      $datacek=mysqli_query($con,"SELECT
+      $datacek=sqlsrv_query($con,"SELECT
 	*, b.id AS kd,b.no_roll as `rolno`
 FROM
 	pergerakan_stok a
@@ -466,7 +466,7 @@ ORDER BY
 	$no=1;
 	$n=1;
 	$c=0;
-	 while($rowd=mysqli_fetch_array($datacek)){ 
+	 while($rowd=sqlsrv_fetch_array($datacek)){ 
 		
 		    $bgcolor = ($c++ & 1) ? '#33CCFF' : '#FFCC99';
 			if($_GET['pk']=="Rolls"){$gw=0.6;}else{$gw=0.2;}
@@ -574,7 +574,7 @@ ORDER BY
 <?php 
 
 if (isset($_POST['save'])) {
-        $qry1=mysqli_query($con,"INSERT INTO tbl_exim_pim SET
+        $qry1=sqlsrv_query($con,"INSERT INTO tbl_exim_pim SET
 		no_pi='".$_POST['no_pi']."',
 		bon_order='".$_POST['bon_order']."',
 		buyer='".$_POST['buyer']."',
@@ -589,8 +589,8 @@ if (isset($_POST['save'])) {
 		tgl_terima='".$_POST['tgl_terima']."',
 		tgl_update=now()
 		");
-		$cekPI=mysqli_query($con,"SELECT id FROM tbl_exim_pim WHERE no_pi='".$_POST['no_pi']."' ORDER BY id DESC ");
-		$rcekPI=mysqli_fetch_array($cekPI);
+		$cekPI=sqlsrv_query($con,"SELECT id FROM tbl_exim_pim WHERE no_pi='".$_POST['no_pi']."' ORDER BY id DESC ");
+		$rcekPI=sqlsrv_fetch_array($cekPI);
 		
 		$po="";
 		$per="";
@@ -599,12 +599,12 @@ if (isset($_POST['save'])) {
 		$pc="0";
 		while($r1=sqlsrv_fetch_array($qry4,SQLSRV_FETCH_ASSOC)){ 
 		if($r1['POADD']==""){$po=str_replace("'","''",$r1['PONumber']);}else{ $po=str_replace("'","''",$r1['POADD']); }
-		$sqlHS1=mysqli_query($con,"SELECT hs_code FROM tbl_exim_code WHERE no_item='".$r1['ProductCode']."' LIMIT 1");
-		$rHS1=mysqli_fetch_array($sqlHS1);
+		$sqlHS1=sqlsrv_query($con,"SELECT hs_code FROM tbl_exim_code WHERE no_item='".$r1['ProductCode']."' LIMIT 1");
+		$rHS1=sqlsrv_fetch_array($sqlHS1);
 		if($r1['UnitName']=="yard"){$per="yd";}elseif($r1['UnitName']=="kg"){$per="kg";}elseif($r1['UnitName']=="pc"){$per="pc";}	
 		if($r1['UnitName']=="kg"){$kg=$r1['QuantityToOrder'];}else{$kg=round($r1['Weight']);}
 		if($r1['UnitName']=="yard"){$yd=$r1['QuantityToOrder'];}	
-		$qry1=mysqli_query($con,"INSERT INTO tbl_exim_pim_detail SET
+		$qry1=sqlsrv_query($con,"INSERT INTO tbl_exim_pim_detail SET
 		id_pi='".$rcekPI['id']."',
 		po='$po',
 		item='".$r1['ProductCode']."',

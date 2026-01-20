@@ -30,8 +30,8 @@ INNER JOIN Countries l ON f.CountryID=l.ID
 INNER JOIN Countries m ON j.CountryID=m.ID
 WHERE a.SONumber='".$_GET['pi']."'");
 $data = sqlsrv_fetch_array($qry,SQLSRV_FETCH_ASSOC);
-$sqlInv = mysqli_query($con,"SELECT * FROM tbl_exim_cim WHERE id='".$_GET['id']."' LIMIT 1");
-$dInv = mysqli_fetch_array($sqlInv);
+$sqlInv = sqlsrv_query($con,"SELECT * FROM tbl_exim_cim WHERE id='".$_GET['id']."' LIMIT 1");
+$dInv = sqlsrv_fetch_array($sqlInv);
 ?>
 <div class="box box-info collapsed-box">
 	<form class="form-horizontal" action="" method="post" enctype="multipart/form-data" name="form1">
@@ -60,7 +60,7 @@ $dInv = mysqli_fetch_array($sqlInv);
 					<select name="detail_pi" class="form-control select2" onchange="window.location='?p=Form-Detail-CI-Manual&amp;id=<?php echo $_GET['id']; ?>&amp;pi=<?php echo $_GET['pi']; ?>&amp;pid='+this.value" required>
 						<option value="">Pilih</option>
 						<?php
-						$qrycon = mysqli_query($con,"SELECT
+						$qrycon = sqlsrv_query($con,"SELECT
 	a.id,
 	a.po,
 	a.item,
@@ -74,7 +74,7 @@ FROM
 	tbl_exim_pim b ON b.id=a.id_pi
 WHERE
 	b.no_pi='".$_GET['pi']."' ORDER BY a.id ASC");
-						while ($rcon = mysqli_fetch_array($qrycon)) {
+						while ($rcon = sqlsrv_fetch_array($qrycon)) {
 						?>
 							<option value="<?php echo $rcon['id']; ?>" <?php if ($rcon['id'] == $_GET['pid']) {
 																			echo "SELECTED";
@@ -136,7 +136,7 @@ WHERE
 				</div>
 			</div>
 			<div class="box-body">
-				<?php $qry3 = mysqli_query($con,"SELECT c.po,c.item,c.color,a.no_pi,b.no_invoice,a.kg,a.panjang,a.satuan,a.pcs,a.id FROM tbl_exim_cim_detail a 
+				<?php $qry3 = sqlsrv_query($con,"SELECT c.po,c.item,c.color,a.no_pi,b.no_invoice,a.kg,a.panjang,a.satuan,a.pcs,a.id FROM tbl_exim_cim_detail a 
 											INNER JOIN tbl_exim_cim b ON b.id=a.id_cim
 											LEFT JOIN tbl_exim_pim_detail c ON a.id_pimd=c.id
 											WHERE a.id_cim='".$_GET['id']."' ORDER BY a.id ASC"); ?>
@@ -181,16 +181,16 @@ WHERE
 						<?php
 						$c = 1;
 						$no = 1;
-						while ($r = mysqli_fetch_array($qry3)) {
+						while ($r = sqlsrv_fetch_array($qry3)) {
 							$bgcolor = ($c++ & 1) ? '#33CCFF' : '#FFCC99';
-							$sqlKembali = mysqli_query($con,"SELECT count(nilai) as jml,sum(nilai) as kembali,GROUP_CONCAT(DISTINCT sts) as sts FROM tbl_exim_pengembalian WHERE id_cimd='".$r['id']."'");
-							$rKmbl = mysqli_fetch_array($sqlKembali);
-							$sqlAjukan = mysqli_query($con,"SELECT sum(nilai) as kembali,sts FROM tbl_exim_pengembalian 
+							$sqlKembali = sqlsrv_query($con,"SELECT count(nilai) as jml,sum(nilai) as kembali,GROUP_CONCAT(DISTINCT sts) as sts FROM tbl_exim_pengembalian WHERE id_cimd='".$r['id']."'");
+							$rKmbl = sqlsrv_fetch_array($sqlKembali);
+							$sqlAjukan = sqlsrv_query($con,"SELECT sum(nilai) as kembali,sts FROM tbl_exim_pengembalian 
 					WHERE id_cimd='".$r['id']."' and sts='Ajukan' GROUP BY sts");
-							$rAjukan = mysqli_fetch_array($sqlAjukan);
-							$sqldiAjukan = mysqli_query($con,"SELECT sum(nilai) as kembali,sts FROM tbl_exim_pengembalian 
+							$rAjukan = sqlsrv_fetch_array($sqlAjukan);
+							$sqldiAjukan = sqlsrv_query($con,"SELECT sum(nilai) as kembali,sts FROM tbl_exim_pengembalian 
 					WHERE id_cimd='".$r['id']."' and sts='Tidak diajukan' GROUP BY sts");
-							$rdiAjukan = mysqli_fetch_array($sqldiAjukan);
+							$rdiAjukan = sqlsrv_fetch_array($sqldiAjukan);
 						?>
 							<tr bgcolor="<?php echo $bgcolor; ?>">
 								<td align="center"><?php echo $no; ?></td>
@@ -307,7 +307,7 @@ WHERE
 <?php
 
 if (isset($_POST['save'])) {
-	$qry1 = mysqli_query($con,"INSERT INTO tbl_exim_cim_detail SET
+	$qry1 = sqlsrv_query($con,"INSERT INTO tbl_exim_cim_detail SET
 		id_cim='".$_GET['id']."',
 		no_pi='".$_POST['no_pi']."',
 		id_pimd='".$_GET['pid']."',

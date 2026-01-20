@@ -170,12 +170,12 @@ if ($_POST) { //login user
     $username = $_SESSION['usernmEX'];
     $password = $_POST['password'];
 	$level	  =	$_SESSION['levelEX'];
-    $sql=mysqli_query($con,"select * from user_login where user='$username' and password='$password' and level = '$level' limit 1");
-    if (mysqli_num_rows($sql)>0) {
+    $sql=sqlsrv_query($con,"select * from user_login where user='$username' and password='$password' and level = '$level' limit 1");
+    if (sqlsrv_num_rows($sql)>0) {
         $_SESSION['usernmEX']=$username;
 		$_SESSION['passwordEX']=$password;
 		$_SESSION['levelEX']=$level;
-		$r = mysqli_fetch_array($sql);
+		$r = sqlsrv_fetch_array($sql);
 		$_SESSION['statusEX']=$r['status'];
         $_SESSION['fotoEX']=$r['foto'];
         //login_validate();

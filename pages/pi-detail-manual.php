@@ -45,15 +45,20 @@
 					</thead>
 					<tbody>
 					<?php 
-					$qry3=mysqli_query($con,"SELECT a.*,b.no_pi,b.bon_order FROM tbl_exim_pim_detail a 
-					INNER JOIN tbl_exim_pim b ON a.id_pi=b.id 
-				    WHERE a.`status`='On Going' ORDER BY a.status ASC");	
+					$qry3=sqlsrv_query($con,"SELECT 
+						a.*, 
+						b.no_pi, 
+						b.bon_order 
+					FROM db_qc.tbl_exim_pim_detail a 
+					INNER JOIN db_qc.tbl_exim_pim b ON a.id_pi = b.id 
+					WHERE a.[status] = 'On Going' 
+					ORDER BY a.[status] ASC");	
 					$no=1;
 					$col=0;	
-					while($r=mysqli_fetch_array($qry3)){
+					while($r=sqlsrv_fetch_array($qry3, SQLSRV_FETCH_ASSOC)){
 						$bgcolor = ($col++ & 1) ? 'gainsboro' : 'antiquewhite';
-					$qryD=mysqli_query($con,"SELECT kg,panjang,pcs,satuan FROM tbl_exim_cim_detail WHERE id_pimd='".$r['id']."'");
-					$rD=mysqli_fetch_array($qryD);
+					$qryD=sqlsrv_query($con,"SELECT kg,panjang,pcs,satuan FROM db_qc.tbl_exim_cim_detail WHERE id_pimd='".$r['id']."'");
+					$rD=sqlsrv_fetch_array($qryD, SQLSRV_FETCH_ASSOC);
 						
 					?>
 						<tr bgcolor="<?php echo $bgcolor; ?>">

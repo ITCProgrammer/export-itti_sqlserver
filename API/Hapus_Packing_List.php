@@ -2,7 +2,7 @@
 session_start();
 include '../koneksi.php';
 
-$datastk1 = mysqli_query($con,"UPDATE detail_pergerakan_stok SET refno=NULL , lott = NULL , pack = NULL WHERE id ='".$_POST['pk']."'");
+$datastk1 = sqlsrv_query($con,"UPDATE detail_pergerakan_stok SET refno=NULL , lott = NULL , pack = NULL WHERE id ='".$_POST['pk']."'");
 
 if ($datastk1) {
     $json_data = array(

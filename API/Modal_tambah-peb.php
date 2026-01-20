@@ -1,8 +1,8 @@
 <?php
 session_start();
 include '../koneksi.php';
-$sqlcek = mysqli_query($con,"SELECT * FROM tbl_exim WHERE listno='".$_GET['listno']."' LIMIT 1");
-$rcek = mysqli_fetch_array($sqlcek);
+$sqlcek = sqlsrv_query($con,"SELECT * FROM tbl_exim WHERE listno='".$_GET['listno']."' LIMIT 1");
+$rcek = sqlsrv_fetch_array($sqlcek);
 ?>
 <div class="modal-content">
     <form method="post" enctype="multipart/form-data" name="form_act_peb" id="form_act_peb" class="form-horizontal">

@@ -17,7 +17,7 @@ if(isset($_FILES['xml_data']['name']) &&  $_FILES['xml_data']['name'] != '')
 			$niper = $row->NIPER;
 			$pimp= $row->TTD_KONVERSI;
     		$sql = "INSERT INTO tk_konv_hdr_temp (ID_KONV, TGL_KONV, ID_NIPER, PIMP_PERUSAHAAN) VALUES('" . $no_konv . "','". $tgl_konv . "','" .$niper . "','" . $pimp . "')";
-			$result = mysqli_query($con,$sql);
+			$result = sqlsrv_query($con,$sql);
 			if(!$result)
 			{	
 				$resultData['status'] = '400';
@@ -41,7 +41,7 @@ if(isset($_FILES['xml_data']['name']) &&  $_FILES['xml_data']['name'] != '')
 			$flubah = $$row1->FL_UBAH;
 						
     		$sql1 = "INSERT INTO `tk_konv_imp_temp`(`KD_KONV_IMP`, `KD_KONV_EKS`, `NO_URUT`, `UR_BRG`, `HS_CODE`, `KD_SAT`, `JML_SAT`, `NIL_KOEFISIEN`, `NIL_KANDUNG`, `NIL_WASTE`) VALUES('" . $kdbb . "','". $kdbj . "','" .$nourut. "','".$urbrg. "','".$hscode. "','".$kdsat. "','".$flubah. "','".$koef. "','".$tkdg. "','" . $waste . "')";
-			$result1 = mysqli_query($con,$sql1);
+			$result1 = sqlsrv_query($con,$sql1);
 			if(!$result1)
 			{	
 				$resultData['status'] = '400';
@@ -63,7 +63,7 @@ if(isset($_FILES['xml_data']['name']) &&  $_FILES['xml_data']['name'] != '')
 			$flubah = $row2->FL_UBAH;
 						
     		$sql2 = "INSERT INTO `tk_konv_eks_temp`(`ID_KONV`, `KD_KONV_EKS`, `NO_URUT`, `UR_BRG`, `HS_CODE`, `KD_SAT`) VALUES('" . $nokonv . "','". $kdbj . "','" .$nourut. "','".$urbrg. "','".$hscode. "','".$kdsat. "')";
-			$result2 = mysqli_query($con,$sql2);
+			$result2 = sqlsrv_query($con,$sql2);
 			if(!$result2)
 			{	
 				$resultData['status'] = '400';

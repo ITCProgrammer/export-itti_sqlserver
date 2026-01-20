@@ -49,9 +49,9 @@ $rdb2 = db2_fetch_assoc($stmt1);
 ?>
 <?php
    
-$sqlCek=mysqli_query($con,"SELECT * FROM tbl_exim_pim WHERE no_pi='".$_GET['pi']."' LIMIT 1");
-$cek=mysqli_num_rows($sqlCek);
-$r=mysqli_fetch_array($sqlCek);
+$sqlCek=sqlsrv_query($con,"SELECT * FROM tbl_exim_pim WHERE no_pi='".$_GET['pi']."' LIMIT 1");
+$cek=sqlsrv_num_rows($sqlCek);
+$r=sqlsrv_fetch_array($sqlCek);
 ?>
 
 <div class="box box-info">
@@ -266,8 +266,8 @@ $stmt2=db2_exec($conn1,$sql2DB2, array('cursor'=>DB2_SCROLLABLE));
 					while($r=db2_fetch_assoc($stmt2)){
 					$bgcolor = ($c++ & 1) ? '#33CCFF' : '#FFCC99';
 					if($r['NOITEM']==""){$itmm=$r['HANGERNO'];}else{$itmm=$r['NOITEM'];}
-					$sqlHS=mysqli_query($con,"SELECT hs_code FROM tbl_exim_code WHERE no_item='".$itmm."' LIMIT 1");
-					$rHS=mysqli_fetch_array($sqlHS);
+					$sqlHS=sqlsrv_query($con,"SELECT hs_code FROM tbl_exim_code WHERE no_item='".$itmm."' LIMIT 1");
+					$rHS=sqlsrv_fetch_array($sqlHS);
 					?>
 						<tr bgcolor="<?php echo $bgcolor; ?>">
 							<td align="center">
@@ -388,7 +388,7 @@ $stmt24=db2_exec($conn1,$sql2DB24, array('cursor'=>DB2_SCROLLABLE));
 <?php 
 
 if (isset($_POST['save'])) {
-        $qry1=mysqli_query($con,"INSERT INTO tbl_exim_pim SET
+        $qry1=sqlsrv_query($con,"INSERT INTO tbl_exim_pim SET
 		no_pi='".$_POST['no_pi']."',
 		bon_order='".$_POST['bon_order']."',
 		buyer='".$_POST['buyer']."',
@@ -403,8 +403,8 @@ if (isset($_POST['save'])) {
 		tgl_terima='".$_POST['tgl_terima']."',
 		tgl_update=now()
 		");
-		$cekPI=mysqli_query($con,"SELECT id FROM tbl_exim_pim WHERE no_pi='".$_POST['no_pi']."' ORDER BY id DESC ");
-		$rcekPI=mysqli_fetch_array($cekPI);		
+		$cekPI=sqlsrv_query($con,"SELECT id FROM tbl_exim_pim WHERE no_pi='".$_POST['no_pi']."' ORDER BY id DESC ");
+		$rcekPI=sqlsrv_fetch_array($cekPI);		
 		$po="";
 		$per="";
 		$kg="0";
@@ -413,12 +413,12 @@ if (isset($_POST['save'])) {
 		while($r4=db2_fetch_assoc($stmt24)){
 		if($r['NO_PO2']==""){$po=$r4['NO_PO1'];}else{ $po=$r4['NO_PO2']; }	
 		if($r['NOITEM']==""){$itmNo=$r['HANGERNO'];}else{$itmNo=$r['NOITEM'];}	
-		$sqlHS1=mysqli_query($con,"SELECT hs_code FROM tbl_exim_code WHERE no_item='".$itmNo."' LIMIT 1");
-		$rHS1=mysqli_fetch_array($sqlHS1);
+		$sqlHS1=sqlsrv_query($con,"SELECT hs_code FROM tbl_exim_code WHERE no_item='".$itmNo."' LIMIT 1");
+		$rHS1=sqlsrv_fetch_array($sqlHS1);
 		if($r4['UNITNAME']=="yd"){$per="yd";}elseif($r4['UNITNAME']=="kg"){$per="kg";}elseif($r4['UNITNAME']=="pcs"){$per="pc";}	
 		if($r4['UNITNAME']=="kg"){$kg=$r4['BASEPRIMARYQUANTITY'];}
 		if($r4['UNITNAME']=="yd"){$yd=$r4['BASESECONDARYQUANTITY'];}	
-		$qry1=mysqli_query($con,"INSERT INTO tbl_exim_pim_detail SET
+		$qry1=sqlsrv_query($con,"INSERT INTO tbl_exim_pim_detail SET
 		id_pi='".$rcekPI['id']."',
 		po='$po',
 		item='".$itmNo."',
@@ -447,7 +447,7 @@ if (isset($_POST['save'])) {
         }
     }
 if (isset($_POST['edit'])) {
-        $qry1=mysqli_query($con,"UPDATE tbl_exim_pim SET
+        $qry1=sqlsrv_query($con,"UPDATE tbl_exim_pim SET
 		bon_order='".$_POST['bon_order']."',
 		buyer='".$_POST['buyer']."',
 		messr='".$_POST['messr']."',

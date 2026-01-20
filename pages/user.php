@@ -18,7 +18,7 @@ if ($_SESSION['levelEX']!="SPV") {
 
 <body>
 <?php
-   $datauser=mysqli_query($con,"SELECT * FROM user_login WHERE `dept`='EX-IM' ORDER BY user ASC");
+   $datauser=sqlsrv_query($con,"SELECT * FROM user_login WHERE `dept`='EX-IM' ORDER BY user ASC");
 	$no=1;
 	$n=1;
 	$c=0;
@@ -43,7 +43,7 @@ if ($_SESSION['levelEX']!="SPV") {
   <tbody>
   <?php
 	  $col=0;
-  while($rowd=mysqli_fetch_array($datauser)){ 
+  while($rowd=sqlsrv_fetch_array($datauser)){ 
 			$bgcolor = ($col++ & 1) ? 'gainsboro' : 'antiquewhite';
 		 ?> 
   <tr align="center" bgcolor="<?php echo $bgcolor; ?>">

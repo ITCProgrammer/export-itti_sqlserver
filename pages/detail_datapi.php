@@ -25,11 +25,11 @@ include("../koneksi.php");
 					</thead>
 					<tbody>
 					<?php 
-					$qry3=mysqli_query($con,"SELECT *,b.no_invoice FROM tbl_exim_pim_detail a 
+					$qry3=sqlsrv_query($con,"SELECT *,b.no_invoice FROM tbl_exim_pim_detail a 
 LEFT JOIN tbl_exim_cim_detail b ON a.id=b.id_pimd
 WHERE a.id='".$_GET['id']."' ORDER BY a.id ASC");	
 							
-					while($r=mysqli_fetch_array($qry3)){
+					while($r=sqlsrv_fetch_array($qry3)){
 					
 					?>
 						<tr>

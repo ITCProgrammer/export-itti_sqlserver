@@ -10,7 +10,7 @@ if (isset($_POST['save']) == 'save') {
     $no_cont = str_replace("'", "''", $_POST['no_container']);
     $wh = $_POST['werehouse'];
 
-    mysqli_query($con,"UPDATE tbl_exim SET
+    sqlsrv_query($con,"UPDATE tbl_exim SET
 	`no_peb`='$peb',
 	`tgl_peb`='$tglpeb',
 	`npe`='$npe',
