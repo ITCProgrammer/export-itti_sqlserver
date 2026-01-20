@@ -111,16 +111,16 @@
               </thead>
               <tbody>
   <?php 
-	$sqldt=sqlsrv_query($con,"SELECT * FROM tk_konv_hdr_temp ORDER BY ID_KONV DESC");
+	$sqldt=sqlsrv_query($con,"SELECT * FROM db_qc.tk_konv_hdr_temp ORDER BY ID_KONV DESC");
 	$no=1;
-	while($rowd=sqlsrv_fetch_array($sqldt)){
-		 $sqlEKS=sqlsrv_query($con,"SELECT COUNT(*) as jml FROM tk_konv_eks_temp WHERE ID_KONV='".$rowd['ID_KONV']."' GROUP BY ID_KONV ");
-		 $rEKS=sqlsrv_fetch_array($sqlEKS);		 
+	while($rowd=sqlsrv_fetch_array($sqldt, SQLSRV_FETCH_ASSOC)){
+		 $sqlEKS=sqlsrv_query($con,"SELECT COUNT(*) as jml FROM db_qc.tk_konv_eks_temp WHERE ID_KONV='".$rowd['ID_KONV']."' GROUP BY ID_KONV ");
+		 $rEKS=sqlsrv_fetch_array($sqlEKS, SQLSRV_FETCH_ASSOC);		 
 		?>
                 <tr>
                   <td align="center" ><?php echo $no; ?></td>
                   <td align="center" ><?php echo $rowd['ID_KONV'];?></td>
-                  <td align="center" ><?php echo $rowd['TGL_KONV'];?></td>
+                  <td align="center" ><?php echo $rowd['TGL_KONV']->format('Y-m-d');?></td>
                   <td align="center" ><?php echo $rowd['ID_NIPER'];?></td>
                   <td align="center" ><?php echo $rowd['PIMP_PERUSAHAAN'];?></td>
                   <td align="center" ><?php echo $rEKS['jml'];?></td>
