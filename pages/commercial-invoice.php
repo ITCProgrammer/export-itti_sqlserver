@@ -139,32 +139,42 @@ if ($Thn != "") {
             <tbody>
               <?php
               if (empty($Thn1)) {
-                $sql = sqlsrv_query($con,"SELECT TOP 500 * FROM db_qc.tbl_exim ORDER BY id DESC");
+                $sql = sqlsrv_query($con, "SELECT TOP 500 * FROM db_qc.tbl_exim ORDER BY id DESC");
               } else {
-                $sql = sqlsrv_query($con,"SELECT * FROM db_qc.tbl_exim WHERE YEAR(tgl)='$Thn1' ORDER BY id DESC");
+                $sql = sqlsrv_query($con, "SELECT * FROM db_qc.tbl_exim WHERE YEAR(tgl)='$Thn1' ORDER BY id DESC");
               }
               if ($sql === false) {
                 die(print_r(sqlsrv_errors(), true));
               }
               $no = 1;
               while ($rowd = sqlsrv_fetch_array($sql, SQLSRV_FETCH_ASSOC)) {
-                $qrypl = sqlsrv_query($con,"SELECT count(*) jml
+                $qrypl = sqlsrv_query($con, "SELECT count(*) jml
                                       FROM db_qc.detail_pergerakan_stok a
                                       INNER JOIN db_qc.tmp_detail_kite b ON b.id=a.id_detail_kj
                                       INNER JOIN db_qc.tbl_kite c ON c.id=b.id_kite
-                                      WHERE refno='".$rowd['listno']."'");
+                                      WHERE refno='" . $rowd['listno'] . "'");
                 $cpl = sqlsrv_fetch_array($qrypl, SQLSRV_FETCH_ASSOC);
 
-                $sqldt1 = sqlsrv_query($con," SELECT sum(a.weight) as kgs,sum(a.yard_)as yds,sum(b.netto)as pcs,b.ukuran,c.user_packing ,c.warna
+                $sqldt1 = sqlsrv_query($con, " SELECT 
+                                            SUM(a.weight) AS kgs,
+                                            SUM(a.yard_) AS yds,
+                                            SUM(b.netto) AS pcs,
+                                            b.ukuran,
+                                            c.user_packing,
+                                            c.warna
                                         FROM db_qc.detail_pergerakan_stok a
-                                        INNER JOIN db_qc.tmp_detail_kite b ON b.id=a.id_detail_kj
-                                        INNER JOIN db_qc.tbl_kite c ON c.id=b.id_kite
-                                        WHERE refno='".$rowd['listno']."' ");
+                                        INNER JOIN db_qc.tmp_detail_kite b ON b.id = a.id_detail_kj
+                                        INNER JOIN db_qc.tbl_kite c ON c.id = b.id_kite
+                                        WHERE a.refno='" . $rowd['listno'] . "' 
+                                        GROUP BY 
+                                            b.ukuran, 
+                                            c.user_packing, 
+                                            c.warna;");
                 $r1 = sqlsrv_fetch_array($sqldt1, SQLSRV_FETCH_ASSOC);
                 if ($r1 === false) {
                   die(print_r(sqlsrv_errors(), true));
                 }
-                $sqlsi = sqlsrv_query($con,"SELECT * FROM db_qc.tbl_exim_si WHERE no_si='".$rowd['no_si']."'");
+                $sqlsi = sqlsrv_query($con, "SELECT * FROM db_qc.tbl_exim_si WHERE no_si='" . $rowd['no_si'] . "'");
                 $r2 = sqlsrv_fetch_array($sqlsi, SQLSRV_FETCH_ASSOC);
               ?>
                 <tr>
@@ -219,7 +229,7 @@ if ($Thn != "") {
                   <td style="vertical-align: middle;"><?php echo strtoupper($rowd['payment']); ?></td>
                   <td style="vertical-align: middle;"><?php echo strtoupper($rowd['incoterm']); ?></td>
                   <td style="vertical-align: middle;"><?php echo strtoupper($rowd['t_country']); ?></td>
-                  <td style="vertical-align: middle;"><?php echo strtoupper($rowd['shipment_by']) . "<br> ETD:" . $r2['etd'] . "<br> ETA:" . $r2['eta']; ?></td>
+                  <td style="vertical-align: middle;"><?php echo strtoupper($rowd['shipment_by']) . "<br> ETD:" . ($r2['etd'] ? $r2['etd']->format('Y-m-d') : null) . "<br> ETA:" . ($r2['eta'] ? $r2['eta']->format('Y-m-d') : null); ?></td>
                   <td style="vertical-align: middle;"><?php if ($r1['kgs'] != "") {
                                                         echo $r1['kgs'];
                                                       } else {
@@ -228,14 +238,24 @@ if ($Thn != "") {
                   <td style="vertical-align: middle;"><?php
                                                       $amout = 0;
                                                       $amt = 0;
-                                                      $sqldt = sqlsrv_query($con,"SELECT * FROM tbl_exim_detail WHERE id_list='".$rowd['id']."'");
+                                                      $sqldt = sqlsrv_query($con, "SELECT * FROM db_qc.tbl_exim_detail WHERE id_list='" . $rowd['id'] . "'");
                                                       while ($dt = sqlsrv_fetch_array($sqldt)) {
-                                                        $sqldt1 = sqlsrv_query($con," SELECT sum(a.weight) as kgs,sum(a.yard_)as yds,sum(b.netto)as pcs,b.ukuran,c.user_packing ,c.warna
-                        FROM detail_pergerakan_stok a
-                        INNER JOIN tmp_detail_kite b ON b.id=a.id_detail_kj
-                        INNER JOIN tbl_kite c ON c.id=b.id_kite
-                        WHERE refno='".$rowd['listno']."'  AND a.lott='".$dt['id']."'
-                        GROUP BY b.ukuran,c.warna ");
+                                                        $sqldt1 = sqlsrv_query($con, " SELECT 
+                                                            SUM(a.weight) AS kgs,
+                                                            SUM(a.yard_) AS yds,
+                                                            SUM(b.netto) AS pcs,
+                                                            b.ukuran,
+                                                            c.user_packing,
+                                                            c.warna
+                                                        FROM db_qc.detail_pergerakan_stok a
+                                                        INNER JOIN db_qc.tmp_detail_kite b ON b.id = a.id_detail_kj
+                                                        INNER JOIN db_qc.tbl_kite c ON c.id = b.id_kite
+                                                        WHERE a.refno = '" . $rowd['listno'] . "'
+                                                          AND a.lott = '" . $dt['id'] . "'
+                                                        GROUP BY 
+                                                            b.ukuran, 
+                                                            c.user_packing, 
+                                                            c.warna;");
                                                         $dt1 = sqlsrv_fetch_array($sqldt1);
 
                                                         if ($dt['price_by'] == "KGS") {
@@ -258,9 +278,9 @@ if ($Thn != "") {
                   <td style="vertical-align: middle;" align="center"><?php echo $rowd['fasilitas']; ?></td>
                   <td style="vertical-align: middle;"><?php echo strtoupper($r2['forwarder']); ?></td>
                   <td style="vertical-align: middle;" align="center"><?php
-                                                                      $sqlcek = sqlsrv_query($con,"SELECT a.id,b.id_list FROM tbl_exim a
-                                                              LEFT JOIN tbl_exim_detail b ON a.id=b.id_list
-                                                              WHERE listno='".$rowd['listno']."'");
+                                                                      $sqlcek = sqlsrv_query($con, "SELECT a.id,b.id_list FROM db_qc.tbl_exim a
+                                                              LEFT JOIN db_qc.tbl_exim_detail b ON a.id=b.id_list
+                                                              WHERE listno='" . $rowd['listno'] . "'");
                                                                       $ck = sqlsrv_fetch_array($sqlcek);
                                                                       if ($ck['id_list'] != "") {
                                                                         if ($rowd['no_sa'] != "") {
@@ -296,16 +316,16 @@ if ($Thn != "") {
                                                                       }
                                                                       ?></td>
                   <td style="vertical-align: middle;" align="center"><?php
-                          $sqlcek = sqlsrv_query($con,"SELECT a.id,b.id_list FROM tbl_exim a
-                                                              LEFT JOIN tbl_exim_detail b ON a.id=b.id_list
-                                                              WHERE listno='".$rowd['listno']."'");
+                                                                      $sqlcek = sqlsrv_query($con, "SELECT a.id,b.id_list FROM db_qc.tbl_exim a
+                                                              LEFT JOIN db_qc.tbl_exim_detail b ON a.id=b.id_list
+                                                              WHERE listno='" . $rowd['listno'] . "'");
                                                                       $ck = sqlsrv_fetch_array($sqlcek);
                                                                       if ($ck['id_list'] != "") {
                                                                         if ($rowd['no_sa'] != "") {
                                                                           echo "<span class='label bg-fuchsia'>ARSIP</span>";
                                                                         } else {
                                                                           if ($rowd['no_awb'] != "") {
-                                                                            echo "<a href='#' class='add-sa' ci='".$rowd['listno']."'>BUAT SA</a>";
+                                                                            echo "<a href='#' class='add-sa' ci='" . $rowd['listno'] . "'>BUAT SA</a>";
                                                                           } else {
                                                                             if ($rowd['no_tagihan'] != "") {
                                                                               echo "<a href='#' class='label label-danger'>KIRIM DOKUMEN</a>";
@@ -390,17 +410,17 @@ if ($Thn != "") {
                       <div class="col-lg-9 input-group">
                         <select type="text" name="nm_messrs" id="nm_messrs" class="form-control" style="width: 100%;">
                           <option value="">-Pilih-</option>
-                          <?php $qrymes = sqlsrv_query($con,"SELECT * FROM tbl_exim_buyer ORDER BY nama ASC");
+                          <?php $qrymes = sqlsrv_query($con, "SELECT * FROM db_qc.tbl_exim_buyer ORDER BY nama ASC");
                           while ($rmes = sqlsrv_fetch_assoc($qrymes)) { ?>
                             <option value="<?php echo strtoupper($rmes['nama']); ?>" <?php if ($_GET['mess'] != "") {
-                                                                                      if ($_GET['mess'] == $rmes['nama']) {
-                                                                                        echo "SELECTED";
-                                                                                      }
-                                                                                    } else {
-                                                                                      if ($row['nm_messrs'] == $rmes['nama']) {
-                                                                                        echo "SELECTED";
-                                                                                      }
-                                                                                    } ?>><?php echo $rmes['nama']; ?></option>
+                                                                                        if ($_GET['mess'] == $rmes['nama']) {
+                                                                                          echo "SELECTED";
+                                                                                        }
+                                                                                      } else {
+                                                                                        if ($row['nm_messrs'] == $rmes['nama']) {
+                                                                                          echo "SELECTED";
+                                                                                        }
+                                                                                      } ?>><?php echo $rmes['nama']; ?></option>
                           <?php } ?>
                         </select>
                       </div>
@@ -416,15 +436,18 @@ if ($Thn != "") {
                       <div class="col-lg-9 input-group">
                         <select class="form-control" name="nm_consgne" id="nm_consgne" style="width: 100%;">
                           <option value="">-Pilih-</option>
-                          <?php $qrycon = sqlsrv_query($con,"SELECT * FROM tbl_exim_buyer ORDER BY nama ASC");
+                          <?php $qrycon = sqlsrv_query($con, "SELECT * FROM db_qc.tbl_exim_buyer ORDER BY nama ASC");
                           while ($rcon = sqlsrv_fetch_assoc($qrycon)) { ?>
-                            <option value="<?php echo strtoupper($rcon['nama']); ?>" 
-							<?php if ($_GET['cons'] != "") {                                                                              if ($_GET['cons'] == $rcon['nama']) {                                                                 echo "SELECTED";  }
-                                                                                    } else {
-                                                                                      if ($row['nm_consign'] == $rcon['nama']) {
-                                                                                        echo "SELECTED";
-                                                                                      }
-                                                                                    } ?>><?php echo strtoupper($rcon['nama']); ?></option>
+                            <option value="<?php echo strtoupper($rcon['nama']); ?>"
+                              <?php if ($_GET['cons'] != "") {
+                                if ($_GET['cons'] == $rcon['nama']) {
+                                  echo "SELECTED";
+                                }
+                              } else {
+                                if ($row['nm_consign'] == $rcon['nama']) {
+                                  echo "SELECTED";
+                                }
+                              } ?>><?php echo strtoupper($rcon['nama']); ?></option>
                           <?php } ?>
                         </select>
                       </div>
@@ -532,13 +555,17 @@ if ($Thn != "") {
                     <div class="form-group">
                       <label for="" class="col-lg-2 control-label input-sm"><small>Vessel/Flight/Courier⮞</small></label>
                       <div class="col-lg-9 input-group" style="border-bottom: solid #bfbfbf 1px; padding-bottom: 15px;">
-                        <input class="form-control input-sm" name="nm_trans" type="text" id="nm_trans" value="<?php if ($_GET['listno'] != "") {echo $row['v_f_c_nm']; } ?>" size="40" tabindex="11" />
+                        <input class="form-control input-sm" name="nm_trans" type="text" id="nm_trans" value="<?php if ($_GET['listno'] != "") {
+                                                                                                                echo $row['v_f_c_nm'];
+                                                                                                              } ?>" size="40" tabindex="11" />
                       </div>
                     </div>
                     <div class="form-group">
                       <label for="" class="col-lg-2 control-label">Connecting ⮞</label>
                       <div class="col-lg-9 input-group" style="border-bottom: solid #bfbfbf 1px; padding-bottom: 15px;">
-                        <input class="form-control input-sm" name="connecting" type="text" id="connecting" value="<?php if ($_GET['listno'] != "") { echo $row['connecting'];} ?>" size="35" tabindex="12" />
+                        <input class="form-control input-sm" name="connecting" type="text" id="connecting" value="<?php if ($_GET['listno'] != "") {
+                                                                                                                    echo $row['connecting'];
+                                                                                                                  } ?>" size="35" tabindex="12" />
                       </div>
                     </div>
                     <div class="form-group">
@@ -568,37 +595,52 @@ if ($Thn != "") {
                     <div class="form-group">
                       <label for="" class="col-lg-2 control-label">From Country ⮞</label>
                       <div class="col-lg-9 input-group">
-                        <input name="f_country" type="text" id="f_country" class="form-control input-sm" value="<?php if ($row['f_country'] != "") { echo strtoupper($row['f_country']);} else {echo "TG. PRIOK -JAKARTA, INDONESIA / JAKARTA, INDONESIA";} ?>" size="60" tabindex="16" />
+                        <input name="f_country" type="text" id="f_country" class="form-control input-sm" value="<?php if ($row['f_country'] != "") {
+                                                                                                                  echo strtoupper($row['f_country']);
+                                                                                                                } else {
+                                                                                                                  echo "TG. PRIOK -JAKARTA, INDONESIA / JAKARTA, INDONESIA";
+                                                                                                                } ?>" size="60" tabindex="16" />
                       </div>
                     </div>
                     <div class="form-group">
                       <label for="" class="col-lg-2 control-label">To Country ⮞</label>
                       <div class="col-lg-9 input-group">
-                        <input name="t_country" type="text" id="t_country" class="form-control input-sm" value="<?php if ($_GET['listno'] != "") { echo $row['t_country'];} ?>" size="40" tabindex="17" />
+                        <input name="t_country" type="text" id="t_country" class="form-control input-sm" value="<?php if ($_GET['listno'] != "") {
+                                                                                                                  echo $row['t_country'];
+                                                                                                                } ?>" size="40" tabindex="17" />
                       </div>
                     </div>
                     <div class="form-group">
                       <label for="" class="col-lg-2 control-label">Left Area ⮞</label>
                       <div class="col-lg-9 input-group">
-                        <textarea name="left_a" id="left_a" class="form-control input-sm" cols="30" rows="2"><?php if ($_GET['listno'] != "") { echo strip_tags(strtoupper($row['l_area']));} ?></textarea>
+                        <textarea name="left_a" id="left_a" class="form-control input-sm" cols="30" rows="2"><?php if ($_GET['listno'] != "") {
+                                                                                                                echo strip_tags(strtoupper($row['l_area']));
+                                                                                                              } ?></textarea>
                       </div>
                     </div>
                     <div class="form-group">
                       <label for="" class="col-lg-2 control-label">Right Area ⮞</label>
                       <div class="col-lg-9 input-group">
-                        <textarea class="form-control input-sm" name="right_a" id="right_a" cols="60" rows="2" tabindex="19"><?php if ($row['r_area'] != "") {echo strip_tags($row['r_area']);} else { //echo "NOTE : CLIENT RESPONSIBLE FOR ALL BANK CHARGE"; } ?></textarea>
+                        <textarea class="form-control input-sm" name="right_a" id="right_a" cols="60" rows="2" tabindex="19"><?php if ($row['r_area'] != "") {
+                                                                                                                                echo strip_tags($row['r_area']);
+                                                                                                                              } else { //echo "NOTE : CLIENT RESPONSIBLE FOR ALL BANK CHARGE"; } 
+                                                                                                                              ?></textarea>
                       </div>
                     </div>
                     <div class="form-group">
                       <label for="" class="col-lg-2 control-label">Forwarder ⮞</label>
                       <div class="col-lg-9 input-group">
-                        <input name="forwarder" type="text" id="forwarder" class="form-control input-sm" tabindex="20" value="<?php if ($_GET['listno'] != "") { echo $row['forwarder']; } ?>" readonly="readonly" />
+                        <input name="forwarder" type="text" id="forwarder" class="form-control input-sm" tabindex="20" value="<?php if ($_GET['listno'] != "") {
+                                                                                                                                  echo $row['forwarder'];
+                                                                                                                                } ?>" readonly="readonly" />
                       </div>
                     </div>
                     <div class="form-group">
                       <label for="" class="col-lg-2 control-label">Forwarder Atn ⮞</label>
                       <div class="col-lg-9 input-group">
-                        <input name="f_atn" class="form-control input-sm" type="text" id="f_atn" tabindex="21" value="<?php if ($_GET['listno'] != "") { echo $row['f_atn'];} ?>" readonly="readonly" />
+                        <input name="f_atn" class="form-control input-sm" type="text" id="f_atn" tabindex="21" value="<?php if ($_GET['listno'] != "") {
+                                                                                                                                  echo $row['f_atn'];
+                                                                                                                                } ?>" readonly="readonly" />
                       </div>
                     </div>
                     <div class="form-group">
@@ -606,11 +648,11 @@ if ($Thn != "") {
                       <div class="col-lg-9 input-group">
                         <select class="form-control input-sm" name="no_si" id="no_si">
                           <option value="">Pilih</option>
-                          <?php $qrysi = sqlsrv_query($con,"SELECT * FROM tbl_exim_si");
-                          while ($rsi = sqlsrv_fetch_assoc($qrysi)) { ?>
+                          <?php $qrysi = sqlsrv_query($con, "SELECT * FROM db_qc.tbl_exim_si");
+                                                                                                                                while ($rsi = sqlsrv_fetch_assoc($qrysi)) { ?>
                             <option value="<?php echo $rsi['no_si']; ?>" <?php if ($row['no_si'] == $rsi['no_si']) {
-                                                                          echo "SELECTED";
-                                                                        } ?>><?php echo $rsi['no_si']; ?></option>
+                                                                                                                                    echo "SELECTED";
+                                                                                                                                  } ?>><?php echo $rsi['no_si']; ?></option>
                           <?php } ?>
                         </select>
                       </div>
@@ -618,7 +660,9 @@ if ($Thn != "") {
                     <div class="form-group">
                       <label for="" class="col-lg-2 control-label">Date SI ⮞</label>
                       <div class="col-lg-9 input-group">
-                        <input class="form-control input-sm" name="tgl6" type="text" id="tgl6" value="<?php if ($_GET['listno'] != "") { echo $row['tgl_si'];} ?>" readonly="readonly" />
+                        <input class="form-control input-sm" name="tgl6" type="text" id="tgl6" value="<?php if ($_GET['listno'] != "") {
+                                                                                                                                  echo $row['tgl_si'];
+                                                                                                                                } ?>" readonly="readonly" />
                         <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
                       </div>
                     </div>
@@ -628,57 +672,77 @@ if ($Thn != "") {
                         <select name="status1" id="status1" tabindex="24" disabled="disabled" class="form-control input-sm">
                           <option value="">-Pilih-</option>
                           <option value="FCL" <?php if ($row['status1'] == "FCL") {
-                                                echo "SELECTED";
-                                              } ?>>FCL</option>
+                                                                                                                                  echo "SELECTED";
+                                                                                                                                } ?>>FCL</option>
                           <option value="LCL" <?php if ($row['status1'] == "LCL") {
-                                                echo "SELECTED";
-                                              } ?>>LCL</option>
+                                                                                                                                  echo "SELECTED";
+                                                                                                                                } ?>>LCL</option>
                           <option value="BY AIR" <?php if ($row['status1'] == "BY AIR") {
-                                                    echo "SELECTED";
-                                                  } ?>>BY AIR</option>
+                                                                                                                                  echo "SELECTED";
+                                                                                                                                } ?>>BY AIR</option>
                         </select>
                       </div>
                     </div>
                     <div class="form-group">
                       <label for="" class="col-lg-2 control-label">Status 2 ⮞</label>
                       <div class="col-lg-9 input-group">
-                        <textarea name="status2" id="status2" class="form-control input-sm" cols="60" rows="2" readonly="readonly" id="status2" tabindex="25"><?php if ($_GET['listno'] != "") { echo $row['status2'];} ?></textarea>
+                        <textarea name="status2" id="status2" class="form-control input-sm" cols="60" rows="2" readonly="readonly" id="status2" tabindex="25"><?php if ($_GET['listno'] != "") {
+                                                                                                                                                                echo $row['status2'];
+                                                                                                                                                              } ?></textarea>
                       </div>
                     </div>
                     <div class="form-group">
                       <label for="" class="col-lg-2 control-label">Author ⮞</label>
                       <div class="col-lg-9 input-group">
-                        <input name="author" type="text" id="author" class="form-control input-sm" readonly="readonly" value="<?php if ($row['author'] != "") {  echo $row['author'];} else { echo ucwords($_SESSION['usernm1']);} ?>" tabindex="26" />
+                        <input name="author" type="text" id="author" class="form-control input-sm" readonly="readonly" value="<?php if ($row['author'] != "") {
+                                                                                                                                  echo $row['author'];
+                                                                                                                                } else {
+                                                                                                                                  echo ucwords($_SESSION['usernm1']);
+                                                                                                                                } ?>" tabindex="26" />
                       </div>
                     </div>
                     <div class="form-group">
                       <label for="" class="col-lg-2 control-label">Remarks SI ⮞</label>
                       <div class="col-lg-9 input-group">
-                        <textarea name="r_si" cols="60" rows="3" readonly="readonly" class="form-control" id="r_si" tabindex="27"><?php if ($row['r_si'] != "") { echo strip_tags($row['r_si']);} ?></textarea>
+                        <textarea name="r_si" cols="60" rows="3" readonly="readonly" class="form-control" id="r_si" tabindex="27"><?php if ($row['r_si'] != "") {
+                                                                                                                                    echo strip_tags($row['r_si']);
+                                                                                                                                  } ?></textarea>
                       </div>
                     </div>
                     <div class="form-group">
                       <label for="" class="col-lg-2 control-label">Shipping Mark ⮞</label>
                       <div class="col-lg-9 input-group">
-                        <textarea name="shipping" class="form-control input-sm" id="shipping" cols="60" rows="3" tabindex="28"><?php if ($_GET['listno'] != "" and $row['s_mark'] != "") {echo strip_tags($row['s_mark']);} else { echo "REMARKS: CERTIFIED BY CONTROL UNION ACCORDING TO THE ORGANIC EXCHANGE BLENDED STANDARD"; } ?></textarea>
+                        <textarea name="shipping" class="form-control input-sm" id="shipping" cols="60" rows="3" tabindex="28"><?php if ($_GET['listno'] != "" and $row['s_mark'] != "") {
+                                                                                                                                  echo strip_tags($row['s_mark']);
+                                                                                                                                } else {
+                                                                                                                                  echo "REMARKS: CERTIFIED BY CONTROL UNION ACCORDING TO THE ORGANIC EXCHANGE BLENDED STANDARD";
+                                                                                                                                } ?></textarea>
                       </div>
                     </div>
                     <div class="form-group">
                       <label for="" class="col-lg-2 control-label">Surcharge ⮞</label>
                       <div class="col-lg-9 input-group">
-                        <input class="form-control input-sm" name="s_charge" type="text" id="s_charge" value="<?php if ($_GET['listno'] != "") { echo $row['s_charge'];} else {echo "0";} ?>" size="10" tabindex="29" />
+                        <input class="form-control input-sm" name="s_charge" type="text" id="s_charge" value="<?php if ($_GET['listno'] != "") {
+                                                                                                                                  echo $row['s_charge'];
+                                                                                                                                } else {
+                                                                                                                                  echo "0";
+                                                                                                                                } ?>" size="10" tabindex="29" />
                       </div>
                     </div>
                     <div class="form-group">
                       <label for="" class="col-lg-2 control-label">No. B/L ⮞</label>
                       <div class="col-lg-9 input-group">
-                        <input name="no_bl" class="form-control input-sm" type="text" id="no_bl" tabindex="30" value="<?php if ($_GET['listno'] != "") { echo $row['no_bl'];} ?>" size="35" readonly="readonly" />
+                        <input name="no_bl" class="form-control input-sm" type="text" id="no_bl" tabindex="30" value="<?php if ($_GET['listno'] != "") {
+                                                                                                                                  echo $row['no_bl'];
+                                                                                                                                } ?>" size="35" readonly="readonly" />
                       </div>
                     </div>
                     <div class="form-group">
                       <label for="" class="col-lg-2 control-label">No Container ⮞</label>
                       <div class="col-lg-9 input-group">
-                        <textarea name="no_container" cols="60" rows="3" class="form-control input-sm" readonly="readonly" id="no_container" tabindex="31"><?php if ($_GET['listno'] != "") { echo $row['no_cont'];} ?></textarea>
+                        <textarea name="no_container" cols="60" rows="3" class="form-control input-sm" readonly="readonly" id="no_container" tabindex="31"><?php if ($_GET['listno'] != "") {
+                                                                                                                                                              echo $row['no_cont'];
+                                                                                                                                                            } ?></textarea>
                       </div>
                     </div>
                   </div>
@@ -946,7 +1010,7 @@ if ($Thn != "") {
     </div>
   </div>
   </div>
-	
+
   <!-- ///////////////////////////////////////////// END MODAL COMMERCIAL INVOICE ////////////////////////////////////////////// -->
   <div class="modal fade modal-super-scaled" id="PrntInvoiceDetail" data-backdrop="static" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
     <div class="modal-dialog" style="width:70%" id="ModalInvoiceDetail">
@@ -990,7 +1054,7 @@ if ($Thn != "") {
     <div class="modal-dialog" id="Body_add_sa" style="width:60%">
     </div>
   </div>
-	<?php } ?>
+<?php } ?>
 </body>
 
 </html>

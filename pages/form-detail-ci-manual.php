@@ -1,36 +1,36 @@
 <?php
-$qry = sqlsrv_query($conn,"SELECT TOP 1 a.ID,CAST(d.[PONumber] AS VARCHAR(8000)) AS PONumber,
-CAST(a.[SalesPersonName] AS VARCHAR(8000)) AS SalesPerson,
-CAST(e.[PartnerName] AS VARCHAR(8000)) AS Buyer,
-CAST(j.[PartnerName] AS VARCHAR(8000)) AS Consignee,
-CAST(j.[Address] AS VARCHAR(8000)) AS Consignee_adr,
-CAST(j.[PhoneNumber] AS VARCHAR(8000)) As Consignee_phone,
-CAST(m.[CountryName] AS VARCHAR(8000)) AS Consignee_c, 
-CAST(k.[CountryName] AS VARCHAR(8000)) AS Destination,
-CAST(f.[PartnerName] AS VARCHAR(8000)) AS Messr,
-CAST(f.[Address] AS VARCHAR(8000)) AS Messr_adr,
-CAST(f.[PhoneNumber] AS VARCHAR(8000)) AS Messr_phone,
-CAST(l.[CountryName] AS VARCHAR(8000)) AS Messr_c,  
-CAST(c.[Documentno] AS VARCHAR(8000)) AS OrderNO,
-CAST(h.[Description] AS VARCHAR(8000)) AS Payment,
-CAST(g.[Description] AS VARCHAR(8000)) AS Term,
-CONVERT(varchar(10), i.[DeliveryDate], 121) AS TglDelivery
-FROM SalesOrders a 
-INNER JOIN SODetails b ON a.ID=b.SOID
-INNER JOIN sodetailsadditional d ON d.sodid=b.id
-INNER JOIN JobOrders c ON a.ID=c.SOID
-INNER JOIN Partners e ON a.BuyerID=e.ID
-INNER JOIN Partners f ON a.CustomerID=f.ID
-INNER JOIN Incoterms g ON a.IncotermID=g.ID
-INNER JOIN PaymentTerms h ON a.PaymentTermID=h.ID
-INNER JOIN SODelivery i ON a.ID=i.SOID
-INNER JOIN Partners j ON i.ConsigneeID=j.ID
-INNER JOIN Countries k ON i.CountryID=k.ID
-INNER JOIN Countries l ON f.CountryID=l.ID
-INNER JOIN Countries m ON j.CountryID=m.ID
-WHERE a.SONumber='".$_GET['pi']."'");
-$data = sqlsrv_fetch_array($qry,SQLSRV_FETCH_ASSOC);
-$sqlInv = sqlsrv_query($con,"SELECT * FROM tbl_exim_cim WHERE id='".$_GET['id']."' LIMIT 1");
+// $qry = sqlsrv_query($conn,"SELECT TOP 1 a.ID,CAST(d.[PONumber] AS VARCHAR(8000)) AS PONumber,
+// CAST(a.[SalesPersonName] AS VARCHAR(8000)) AS SalesPerson,
+// CAST(e.[PartnerName] AS VARCHAR(8000)) AS Buyer,
+// CAST(j.[PartnerName] AS VARCHAR(8000)) AS Consignee,
+// CAST(j.[Address] AS VARCHAR(8000)) AS Consignee_adr,
+// CAST(j.[PhoneNumber] AS VARCHAR(8000)) As Consignee_phone,
+// CAST(m.[CountryName] AS VARCHAR(8000)) AS Consignee_c, 
+// CAST(k.[CountryName] AS VARCHAR(8000)) AS Destination,
+// CAST(f.[PartnerName] AS VARCHAR(8000)) AS Messr,
+// CAST(f.[Address] AS VARCHAR(8000)) AS Messr_adr,
+// CAST(f.[PhoneNumber] AS VARCHAR(8000)) AS Messr_phone,
+// CAST(l.[CountryName] AS VARCHAR(8000)) AS Messr_c,  
+// CAST(c.[Documentno] AS VARCHAR(8000)) AS OrderNO,
+// CAST(h.[Description] AS VARCHAR(8000)) AS Payment,
+// CAST(g.[Description] AS VARCHAR(8000)) AS Term,
+// CONVERT(varchar(10), i.[DeliveryDate], 121) AS TglDelivery
+// FROM SalesOrders a 
+// INNER JOIN SODetails b ON a.ID=b.SOID
+// INNER JOIN sodetailsadditional d ON d.sodid=b.id
+// INNER JOIN JobOrders c ON a.ID=c.SOID
+// INNER JOIN Partners e ON a.BuyerID=e.ID
+// INNER JOIN Partners f ON a.CustomerID=f.ID
+// INNER JOIN Incoterms g ON a.IncotermID=g.ID
+// INNER JOIN PaymentTerms h ON a.PaymentTermID=h.ID
+// INNER JOIN SODelivery i ON a.ID=i.SOID
+// INNER JOIN Partners j ON i.ConsigneeID=j.ID
+// INNER JOIN Countries k ON i.CountryID=k.ID
+// INNER JOIN Countries l ON f.CountryID=l.ID
+// INNER JOIN Countries m ON j.CountryID=m.ID
+// WHERE a.SONumber='".$_GET['pi']."'");
+// $data = sqlsrv_fetch_array($qry, SQLSRV_FETCH_ASSOC);
+$sqlInv = sqlsrv_query($con,"SELECT TOP 1 * FROM db_qc.tbl_exim_cim WHERE id='".$_GET['id']."'");
 $dInv = sqlsrv_fetch_array($sqlInv);
 ?>
 <div class="box box-info collapsed-box">
@@ -61,19 +61,19 @@ $dInv = sqlsrv_fetch_array($sqlInv);
 						<option value="">Pilih</option>
 						<?php
 						$qrycon = sqlsrv_query($con,"SELECT
-	a.id,
-	a.po,
-	a.item,
-	a.color,
-	a.kg,
-	a.yd,
-	a.pcs 
-FROM
-	tbl_exim_pim_detail a
-	INNER JOIN
-	tbl_exim_pim b ON b.id=a.id_pi
-WHERE
-	b.no_pi='".$_GET['pi']."' ORDER BY a.id ASC");
+							a.id,
+							a.po,
+							a.item,
+							a.color,
+							a.kg,
+							a.yd,
+							a.pcs 
+						FROM
+							db_qc.tbl_exim_pim_detail a
+							INNER JOIN
+							db_qc.tbl_exim_pim b ON b.id=a.id_pi
+						WHERE
+							b.no_pi='".$_GET['pi']."' ORDER BY a.id ASC");
 						while ($rcon = sqlsrv_fetch_array($qrycon)) {
 						?>
 							<option value="<?php echo $rcon['id']; ?>" <?php if ($rcon['id'] == $_GET['pid']) {
@@ -136,9 +136,10 @@ WHERE
 				</div>
 			</div>
 			<div class="box-body">
-				<?php $qry3 = sqlsrv_query($con,"SELECT c.po,c.item,c.color,a.no_pi,b.no_invoice,a.kg,a.panjang,a.satuan,a.pcs,a.id FROM tbl_exim_cim_detail a 
-											INNER JOIN tbl_exim_cim b ON b.id=a.id_cim
-											LEFT JOIN tbl_exim_pim_detail c ON a.id_pimd=c.id
+				<?php $qry3 = sqlsrv_query($con,"SELECT c.po,c.item,c.color,a.no_pi,b.no_invoice,a.kg,a.panjang,a.satuan,a.pcs,a.id 
+											FROM db_qc.tbl_exim_cim_detail a 
+											INNER JOIN db_qc.tbl_exim_cim b ON b.id=a.id_cim
+											LEFT JOIN db_qc.tbl_exim_pim_detail c ON a.id_pimd=c.id
 											WHERE a.id_cim='".$_GET['id']."' ORDER BY a.id ASC"); ?>
 				<table id="example2" class="table table-bordered table-hover table-striped" width="100%">
 					<thead class="bg-green">
@@ -183,12 +184,17 @@ WHERE
 						$no = 1;
 						while ($r = sqlsrv_fetch_array($qry3)) {
 							$bgcolor = ($c++ & 1) ? '#33CCFF' : '#FFCC99';
-							$sqlKembali = sqlsrv_query($con,"SELECT count(nilai) as jml,sum(nilai) as kembali,GROUP_CONCAT(DISTINCT sts) as sts FROM tbl_exim_pengembalian WHERE id_cimd='".$r['id']."'");
+							$sqlKembali = sqlsrv_query($con,"SELECT 
+								COUNT(nilai) AS jml, 
+								SUM(nilai) AS kembali, 
+								STRING_AGG(CAST(sts AS VARCHAR(MAX)), ', ') WITHIN GROUP (ORDER BY sts) AS sts
+							FROM db_qc.tbl_exim_pengembalian 
+							WHERE id_cimd = '".$r['id']."'");
 							$rKmbl = sqlsrv_fetch_array($sqlKembali);
-							$sqlAjukan = sqlsrv_query($con,"SELECT sum(nilai) as kembali,sts FROM tbl_exim_pengembalian 
+							$sqlAjukan = sqlsrv_query($con,"SELECT sum(nilai) as kembali,sts FROM db_qc.tbl_exim_pengembalian 
 					WHERE id_cimd='".$r['id']."' and sts='Ajukan' GROUP BY sts");
 							$rAjukan = sqlsrv_fetch_array($sqlAjukan);
-							$sqldiAjukan = sqlsrv_query($con,"SELECT sum(nilai) as kembali,sts FROM tbl_exim_pengembalian 
+							$sqldiAjukan = sqlsrv_query($con,"SELECT sum(nilai) as kembali,sts FROM db_qc.tbl_exim_pengembalian 
 					WHERE id_cimd='".$r['id']."' and sts='Tidak diajukan' GROUP BY sts");
 							$rdiAjukan = sqlsrv_fetch_array($sqldiAjukan);
 						?>
@@ -307,7 +313,7 @@ WHERE
 <?php
 
 if (isset($_POST['save'])) {
-	$qry1 = sqlsrv_query($con,"INSERT INTO tbl_exim_cim_detail SET
+	$qry1 = sqlsrv_query($con,"INSERT INTO db_qc.tbl_exim_cim_detail SET
 		id_cim='".$_GET['id']."',
 		no_pi='".$_POST['no_pi']."',
 		id_pimd='".$_GET['pid']."',

@@ -224,10 +224,10 @@ include "../koneksi.php";
     ?>
 
     <?php
-    $sql = mysql_query("SELECT * FROM tbl_exim WHERE listno='$_GET[listno]'");
-    $r = mysql_fetch_array($sql);
-    $sql3 = mysql_query("SELECT * FROM tbl_exim_si WHERE no_si='$r[no_si]'");
-    $r3 = mysql_fetch_array($sql3);
+    $sql = sqlsrv_query("SELECT * FROM db_qc.tbl_exim WHERE listno='$_GET[listno]'");
+    $r = sqlsrv_fetch_array($sql);
+    $sql3 = sqlsrv_query("SELECT * FROM db_qc.tbl_exim_si WHERE no_si='$r[no_si]'");
+    $r3 = sqlsrv_fetch_array($sql3);
     ?>
     <a href="print-invoice-excel.php?listno=<?PHP echo $_GET[listno]; ?>&ket="><img src="btn_print.png" width="20" height="22" alt="" id="nocetak" /></a>
     <table width="100%" border="0" class="noborder" style="width:7.8in;">
@@ -371,8 +371,8 @@ include "../koneksi.php";
             <th width="28">KGS</th>
             <th width="27">YDS</th>
         </tr>
-        <?PHP $sql1 = mysql_query(" SELECT b.* FROM tbl_exim a
-INNER JOIN tbl_exim_detail b ON a.id=b.id_list
+        <?PHP $sql1 = sqlsrv_query(" SELECT b.* FROM db_qc.tbl_exim a
+INNER JOIN db_qc.tbl_exim_detail b ON a.id=b.id_list
 WHERE a.listno='$_GET[listno]'
 GROUP BY b.no_po,b.no_item ORDER BY id ASC ");
         $no = 1;
@@ -380,7 +380,7 @@ GROUP BY b.no_po,b.no_item ORDER BY id ASC ");
         $yds = 0;
         $pcs = 0;
         $amount = 0;
-        while ($r1 = mysql_fetch_array($sql1)) {
+        while ($r1 = sqlsrv_fetch_array($sql1)) {
 
         ?>
             <tr>
@@ -432,15 +432,32 @@ GROUP BY b.no_po,b.no_item ORDER BY id ASC ");
 	border-right:1px #000000 solid;">&nbsp;</td>
             </tr>
             <?php
-            $sqldt1 = mysql_query("SELECT sum(if(a.sisa='FOC',0,a.weight)) as kgs,sum(if(a.sisa='FOC',0,a.yard_))as yds,sum(if(a.sisa='FOC',0,b.netto))as pcs,b.ukuran,c.user_packing ,c.warna,d.unit_price,d.price_by
-FROM detail_pergerakan_stok a
-INNER JOIN tmp_detail_kite b ON b.id=a.id_detail_kj
-INNER JOIN tbl_kite c ON c.id=b.id_kite
-INNER JOIN tbl_exim_detail d ON a.lott=d.id
-WHERE refno='$_GET[listno]' AND c.no_po='$r1[no_po]' AND c.no_item='$r1[no_item]' AND NOT ISNULL(a.lott)
-GROUP BY b.ukuran,c.no_order,c.no_item,c.warna
-ORDER BY a.lott ASC");
-            while ($r2 = mysql_fetch_array($sqldt1)) {
+            $sqldt1 = sqlsrv_query("SELECT 
+                SUM(CASE WHEN a.sisa = 'FOC' THEN 0 ELSE a.weight END) AS kgs,
+                SUM(CASE WHEN a.sisa = 'FOC' THEN 0 ELSE a.yard_ END) AS yds,
+                SUM(CASE WHEN a.sisa = 'FOC' THEN 0 ELSE b.netto END) AS pcs,
+                b.ukuran,
+                c.user_packing,
+                c.warna,
+                d.unit_price,
+                d.price_by
+            FROM db_qc.detail_pergerakan_stok a
+            INNER JOIN db_qc.tmp_detail_kite b ON b.id = a.id_detail_kj
+            INNER JOIN db_qc.tbl_kite c ON c.id = b.id_kite
+            INNER JOIN db_qc.tbl_exim_detail d ON a.lott = d.id
+            WHERE a.refno = 'EPT020/ITTI/01/18' 
+            AND c.no_po = '$r1[no_po]' 
+            AND c.no_item = '$r1[no_item]' 
+            AND a.lott IS NOT NULL
+            GROUP BY 
+                b.ukuran, 
+                c.user_packing, 
+                c.warna, 
+                d.unit_price, 
+                d.price_by
+            ORDER BY MIN(a.lott) ASC;
+            ");
+            while ($r2 = sqlsrv_fetch_array($sqldt1)) {
             ?>
                 <tr valign="middle">
                     <td align="center" style="border-bottom:0px #000000 solid;

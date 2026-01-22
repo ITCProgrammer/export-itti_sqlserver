@@ -59,11 +59,11 @@ include "koneksi.php";
               </thead>
               <tbody>
                 <?php
-  $sql=sqlsrv_query($con,"SELECT * FROM tbl_exim_cim ORDER BY etd ASC");
+  $sql=sqlsrv_query($con,"SELECT * FROM db_qc.tbl_exim_cim ORDER BY etd ASC");
   while ($r=sqlsrv_fetch_array($sql)) {
       $no++;
       $bgcolor = ($col++ & 1) ? 'gainsboro' : 'antiquewhite'; 
-	  $sqlck=sqlsrv_query($con,"SELECT * FROM tbl_exim_cim_detail WHERE id_cim='".$r['id']."' ");
+	  $sqlck=sqlsrv_query($con,"SELECT * FROM db_qc.tbl_exim_cim_detail WHERE id_cim='".$r['id']."' ");
 	  $ck=sqlsrv_num_rows($sqlck);
 	 ?>
                 <tr bgcolor="<?php echo $bgcolor; ?>">
@@ -71,7 +71,7 @@ include "koneksi.php";
                   <td align="center"><a href="?p=Form-Detail-CI-Manual&id=<?php echo $r['id']; ?>"><?php echo $r['no_invoice']; ?></a></td>
                   <td align="center"><?php echo $r['consignee']; ?></td>
                   <td align="center"><?php echo $r['fasilitas']; ?></td>
-                  <td align="center"><?php echo $r['tgl_sj']; ?></td>
+                  <td align="center"><?php echo $r['tgl_sj'] ? $r['tgl_sj']->format('Y-m-d') : null; ?></td>
                   <td align="center"><?php echo $r['no_si']; ?></td>
                   <td align="center"><?php echo $r['no_peb']; ?></td>
                   <td align="center"><?php echo $r['no_bl']; ?></td>

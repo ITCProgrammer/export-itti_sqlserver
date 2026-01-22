@@ -87,11 +87,11 @@ ini_set("error_reporting", 1);
               GROUP BY 
                   a.id, 
                   a.tgl_terima, a.no_pi, a.bon_order, a.buyer, a.messr, a.consignee, a.destination, a.payment, a.incoterm, a.sales_assistant, a.delivery,
-                  a.author, a.tgl_terima, a.tgl_update, [status]
+                  a.author, a.tgl_terima, a.tgl_update
               ORDER BY 
                   [status] DESC, 
                   a.tgl_terima ASC";
-              $sql = sqlsrv_query($con, $query, $dt, $options);
+              $sql = sqlsrv_query($con, $query);
               if ($sql === false) {
                 die(print_r(sqlsrv_errors(), true));
               }

@@ -82,44 +82,65 @@ include "koneksi.php";
                 </tr>
 				</theader>
 				<tbody>
-					<?Php $sql=mysql_query("SELECT *,ROUND(sum(c.nilai)) as nilai_,sum(c.bb_kandung) as kandung,sum(c.qty_eks) as qtyeks, ROUND(sum(c.bb_kandung*c.price*kurs)) as cif FROM tbl_exim_cim a
-INNER JOIN tbl_exim_cim_detail b ON a.id=b.id_cim
-LEFT JOIN tbl_exim_pengembalian c ON b.id=c.id_cimd
-WHERE c.sts='Ajukan' and b.no_bclkt='$_GET[no]'
-GROUP BY a.no_peb,b.no_urut_peb,c.no_pend_pib,c.urutan
-ORDER BY a.no_peb,b.no_urut_peb,c.no_pend_pib,c.urutan ASC");
+                    <?Php $sql=sqlsrv_query($con, "SELECT 
+              a.*, 
+              agregat.nilai_, 
+              agregat.kandung, 
+              agregat.qtyeks, 
+              agregat.cif
+          FROM db_qc.tbl_exim_cim a
+          INNER JOIN (
+              SELECT 
+                  b.id_cim,
+                  b.no_urut_peb,
+                  c.no_pend_pib,
+                  c.urutan,
+                  ROUND(SUM(c.nilai), 0) AS nilai_,
+                  SUM(CAST(c.bb_kandung AS NUMERIC(18, 2))) AS kandung,
+                  SUM(c.qty_eks) AS qtyeks,
+                  ROUND(SUM(CAST(c.bb_kandung AS NUMERIC(18, 2)) * c.price * c.kurs), 0) AS cif
+              FROM db_qc.tbl_exim_cim_detail b
+              LEFT JOIN db_qc.tbl_exim_pengembalian c ON b.id = c.id_cimd
+              WHERE c.sts = 'Ajukan' AND b.no_bclkt = '$_GET[no]'
+              GROUP BY b.id_cim, b.no_urut_peb, c.no_pend_pib, c.urutan
+          ) AS agregat ON a.id = agregat.id_cim
+          ORDER BY a.no_peb, agregat.no_urut_peb, agregat.no_pend_pib, agregat.urutan ASC;");
 					$no="1";
-					while($row=mysql_fetch_array($sql)){
-					$sql1=mysql_query("SELECT a.HS_CODE as hs_eks,b.HS_CODE as hs_imp FROM tk_konv_eks_temp a 
-					INNER JOIN tk_konv_imp_temp b ON a.ID_KONV= SUBSTR(b.KD_KONV_EKS,1,10)
-					WHERE a.ID_KONV='$row[konversi]' 
-					and SUBSTR(a.KD_KONV_EKS,12,30)='$row[itm_eks]' 
-					AND b.KD_KONV_IMP='$row[kode_fs]'");
-					$row1=mysql_fetch_array($sql1);	
-					$sql2=mysql_query("SELECT * FROM tbl_exim_import WHERE no_pend='$row[no_pend_pib]' LIMIT 1");
-					$row2=mysql_fetch_array($sql2);	
+					while($row=sqlsrv_fetch_array($sql)){
+					$sql1=sqlsrv_query($con, "SELECT 
+              a.HS_CODE AS hs_eks,
+              b.HS_CODE AS hs_imp 
+          FROM db_qc.tk_konv_eks_temp a 
+          INNER JOIN db_qc.tk_konv_imp_temp b 
+              ON a.ID_KONV = SUBSTRING(b.KD_KONV_EKS, 1, 10)
+          WHERE a.ID_KONV = '$row[konversi]' 
+            AND SUBSTRING(a.KD_KONV_EKS, 12, 30) = ''$row[itm_eks]'' 
+            AND b.KD_KONV_IMP = '$row[kode_fs]' ");
+					$row1=sqlsrv_fetch_array($sql1);	
+					$sql2=sqlsrv_query($con, "SELECT TOP 1 * FROM db_qc.tbl_exim_import WHERE no_pend='$row[no_pend_pib]' ");
+					$row2=sqlsrv_fetch_array($sql2);	
 					?>
                 <tr>
                   <td align="center"><?php echo $no; ?> </td>
                   <td align="center">1</td>
-                  <td align="center">?<br /><?php echo $row[no_peb]."/<br>".$row[tgl_peb]; ?></td>
-                  <td align="right"><?php echo $row[konversi].$row[itm_eks];?><br><?php echo $row[no_urut_peb]." / ".$row1[hs_eks];?><br>KNITTED FABRIC</td>
-                  <td align="right"><?php echo number_format($row[qtyeks],"4",".",","); ?><br>KGM</td>
-                  <td align="center"><?php echo $row[no_lhpre]; ?><br><?php echo $row[tgl_lhpre]; ?></td>
-                  <td align="right"><?php echo number_format($row[qtyeks],"2",".",","); ?><br />
+                  <td align="center">?<br /><?php echo $row['no_peb']."/<br>".$row['tgl_peb']->format('Y-m-d'); ?></td>
+                  <td align="right"><?php echo $row['konversi'].$row['itm_eks'];?><br><?php echo $row['no_urut_peb']." / ".$row1['hs_eks'];?><br>KNITTED FABRIC</td>
+                  <td align="right"><?php echo number_format($row['qtyeks'],"4",".",","); ?><br>KGM</td>
+                  <td align="center"><?php echo $row['no_lhpre']; ?><br><?php echo $row['tgl_lhpre']->format('Y-m-d'); ?></td>
+                  <td align="right"><?php echo number_format($row['qtyeks'],"2",".",","); ?><br />
                   KGM</td>
                   <td align="center">&nbsp;</td>
                   <td align="center">3</td>
-                  <td align="center"><?php echo $row2[kode_kantor]; ?><br />
-                  <?php echo $row[no_pend_pib]." / "; ?><br /><?php echo $row2[tgl_pend]; ?></td>
-                  <td align="center"><?php echo $row[urutan]; ?></td>
-                  <td align="left"><?php echo $row[kode_fs]; ?><br />
-                    <?php echo $row1[hs_imp]; ?><br />
+                  <td align="center"><?php echo $row2['kode_kantor']; ?><br />
+                  <?php echo $row['no_pend_pib']." / "; ?><br /><?php echo $row2['tgl_pend']; ?></td>
+                  <td align="center"><?php echo $row['urutan']; ?></td>
+                  <td align="left"><?php echo $row['kode_fs']; ?><br />
+                    <?php echo $row1['hs_imp']; ?><br />
                     YARN</td>
-                  <td align="right"><?php echo number_format($row[kandung],"4",".",","); ?><br />
+                  <td align="right"><?php echo number_format($row['kandung'],"4",".",","); ?><br />
                   KGM</td>
-                  <td align="right"><?php echo number_format($row[cif],"0",".",","); ?></td>
-                  <td align="right"><?php echo number_format($row[nilai_],"0",".",","); ?></br>0</td>
+                  <td align="right"><?php echo number_format($row['cif'],"0",".",","); ?></td>
+                  <td align="right"><?php echo number_format($row['nilai_'],"0",".",","); ?></br>0</td>
                 </tr>
                 <?php $no++;} ?>
               </tbody>

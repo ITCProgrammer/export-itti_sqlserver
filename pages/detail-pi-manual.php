@@ -48,14 +48,14 @@
 					</thead>
 					<tbody>
 					<?php 
-					$qry3=sqlsrv_query($con,"SELECT a.*,b.no_pi,b.bon_order FROM tbl_exim_pim_detail a 
-					INNER JOIN tbl_exim_pim b ON a.id_pi=b.id 
+					$qry3=sqlsrv_query($con,"SELECT a.*,b.no_pi,b.bon_order FROM db_qc.tbl_exim_pim_detail a 
+					INNER JOIN db_qc.tbl_exim_pim b ON a.id_pi=b.id 
 					WHERE a.id_pi='".$_GET['id']."' ORDER BY a.status ASC");	
 					$no=1;
 					$col=0;	
 					while($r=sqlsrv_fetch_array($qry3)){
 						$bgcolor = ($col++ & 1) ? 'gainsboro' : 'antiquewhite';
-					$qryD=sqlsrv_query($con,"SELECT kg,panjang,pcs,satuan FROM tbl_exim_cim_detail WHERE id_pimd='".$_GET['id']."'");
+					$qryD=sqlsrv_query($con,"SELECT kg,panjang,pcs,satuan FROM db_qc.tbl_exim_cim_detail WHERE id_pimd='".$_GET['id']."'");
 					$rD=sqlsrv_fetch_array($qryD);
 						
 					?>

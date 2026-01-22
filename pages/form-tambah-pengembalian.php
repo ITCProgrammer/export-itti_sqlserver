@@ -7,47 +7,49 @@ $Konversi	= isset($_POST['konversi']) ? $_POST['konversi'] : '';
 $KO			= isset($_POST['no_ko']) ? $_POST['no_ko'] : '';
 $Note	    = isset($_POST['note']) ? $_POST['note'] : '';
 
-$sqlDCI = sqlsrv_query($con,"SELECT c.po,c.item,c.color,a.no_pi,b.no_invoice,a.kg,a.panjang,a.satuan,a.pcs,a.id FROM tbl_exim_cim_detail a 
-INNER JOIN tbl_exim_cim b ON b.id=a.id_cim
-LEFT JOIN tbl_exim_pim_detail c ON a.id_pimd=c.id
+$sqlDCI = sqlsrv_query($con,"SELECT c.po,c.item,c.color,a.no_pi,b.no_invoice,a.kg,a.panjang,a.satuan,a.pcs,a.id 
+FROM db_qc.tbl_exim_cim_detail a 
+INNER JOIN db_qc.tbl_exim_cim b ON b.id=a.id_cim
+LEFT JOIN db_qc.tbl_exim_pim_detail c ON a.id_pimd=c.id
 WHERE a.id_cim='".$_GET['DCI']."' AND a.id='".$_GET['id']."' ORDER BY a.id ASC");
-$rDCI = sqlsrv_fetch_array($sqlDCI);
+$rDCI = sqlsrv_fetch_array($sqlDCI, SQLSRV_FETCH_ASSOC);
 $po = str_replace("'", "''", $rDCI['po']);
 
-$qrybclkt = sqlsrv_query($con,"SELECT sum(bb_terpakai) as pakai FROM tbl_exim_pengembalian WHERE id_cimd='".$_GET['id']."'");
-$rBCLKT = sqlsrv_fetch_array($qrybclkt);
+$qrybclkt = sqlsrv_query($con,"SELECT SUM(CAST(bb_terpakai AS NUMERIC(18, 2))) AS bb_terpakai
+FROM db_qc.tbl_exim_pengembalian WHERE id_cimd='".$_GET['id']."'");
+$rBCLKT = sqlsrv_fetch_array($qrybclkt, SQLSRV_FETCH_ASSOC);
 $sisa = $data['berat'] - $rBCLKT['pakai'];
-$sqlInv = sqlsrv_query($con,"SELECT * FROM tbl_exim_cim WHERE id='".$_GET['id']."' LIMIT 1");
-$dInv = sqlsrv_fetch_array($sqlInv);
-$sqlCek = sqlsrv_query($con,"SELECT * FROM tbl_exim_pengembalian WHERE id='".$_GET['idk']."'");
+$sqlInv = sqlsrv_query($con,"SELECT TOP 1 * FROM db_qc.tbl_exim_cim WHERE id='".$_GET['id']."' ");
+$dInv = sqlsrv_fetch_array($sqlInv, SQLSRV_FETCH_ASSOC);
+$sqlCek = sqlsrv_query($con,"SELECT * FROM db_qc.tbl_exim_pengembalian WHERE id='".$_GET['idk']."'");
 $Cek = sqlsrv_num_rows($sqlCek);
-$rCek = sqlsrv_fetch_array($sqlCek);
+$rCek = sqlsrv_fetch_array($sqlCek, SQLSRV_FETCH_ASSOC);
 
 if ($Bahan != "") {
 	$idksng = " ";
 } else {
 	$idksng = " AND TM.dbo.StockMovement.ID='' ";
 }
-$qry = sqlsrv_query($conn,"select 
-CAST([ProductNumber] AS VARCHAR(8000)) AS ProductNumber,
-sum(TM.dbo.stockmovementdetails.weight) as berat,
-count(TM.dbo.stockmovementdetails.weight) as qty,
-sum(TM.dbo.stockmovementdetails.Quantity) as qty1
-from (TM.dbo.StockMovement
-LEFT join TM.dbo.stockmovementdetails on TM.dbo.StockMovement.ID=TM.dbo.stockmovementdetails.StockmovementID)
-LEFT join TM.dbo.ProductProp on TM.dbo.ProductProp.ID=dbo.stockmovementdetails.ProductPropID
-LEFT join TM.dbo.ProductMaster on TM.dbo.ProductMaster.ID=TM.dbo.stockmovementdetails.ProductID
-where (TM.dbo.ProductMaster.ProductNumber LIKE '%-_' or TM.dbo.ProductMaster.ProductNumber LIKE '%-__') 
-and ( TM.dbo.ProductMaster.ProductNumber='$Bahan' or TM.dbo.ProductMaster.ProductNumber LIKE '$Bahan%' ) AND 
-	TM.dbo.StockMovement.transactionstatus='1' and 
-	TM.dbo.StockMovement.transactiontype='4' and WID='11' and NOT FromToID=84 and TM.dbo.stockmovementdetails.Quantity > 0  $idksng group by	
-	TM.dbo.ProductMaster.ProductNumber");
-$data = sqlsrv_fetch_array($qry,SQLSRV_FETCH_ASSOC);
-$qry1 = sqlsrv_query($conn,"SELECT CAST(c.Note as Varchar(200)) as note,c.PONumber FROM SalesOrders a
-INNER JOIN SODetails b ON a.ID=b.SOID
-INNER JOIN SODetailsAdditional c ON b.ID=c.SODID
-WHERE a.SONumber='".$rDCI['no_pi']."' AND c.PONumber='$po'");
-$data1 = sqlsrv_fetch_array($qry1,SQLSRV_FETCH_ASSOC);
+// $qry = sqlsrv_query($conn,"select 
+// CAST([ProductNumber] AS VARCHAR(8000)) AS ProductNumber,
+// sum(TM.dbo.stockmovementdetails.weight) as berat,
+// count(TM.dbo.stockmovementdetails.weight) as qty,
+// sum(TM.dbo.stockmovementdetails.Quantity) as qty1
+// from (TM.dbo.StockMovement
+// LEFT join TM.dbo.stockmovementdetails on TM.dbo.StockMovement.ID=TM.dbo.stockmovementdetails.StockmovementID)
+// LEFT join TM.dbo.ProductProp on TM.dbo.ProductProp.ID=dbo.stockmovementdetails.ProductPropID
+// LEFT join TM.dbo.ProductMaster on TM.dbo.ProductMaster.ID=TM.dbo.stockmovementdetails.ProductID
+// where (TM.dbo.ProductMaster.ProductNumber LIKE '%-_' or TM.dbo.ProductMaster.ProductNumber LIKE '%-__') 
+// and ( TM.dbo.ProductMaster.ProductNumber='$Bahan' or TM.dbo.ProductMaster.ProductNumber LIKE '$Bahan%' ) AND 
+// 	TM.dbo.StockMovement.transactionstatus='1' and 
+// 	TM.dbo.StockMovement.transactiontype='4' and WID='11' and NOT FromToID=84 and TM.dbo.stockmovementdetails.Quantity > 0  $idksng group by	
+// 	TM.dbo.ProductMaster.ProductNumber");
+// $data = sqlsrv_fetch_array($qry,SQLSRV_FETCH_ASSOC);
+// $qry1 = sqlsrv_query($conn,"SELECT CAST(c.Note as Varchar(200)) as note,c.PONumber FROM SalesOrders a
+// INNER JOIN SODetails b ON a.ID=b.SOID
+// INNER JOIN SODetailsAdditional c ON b.ID=c.SODID
+// WHERE a.SONumber='".$rDCI['no_pi']."' AND c.PONumber='$po'");
+// $data1 = sqlsrv_fetch_array($qry1,SQLSRV_FETCH_ASSOC);
 
 ?>
 <div class="box box-info table-responsive">
@@ -109,10 +111,13 @@ $data1 = sqlsrv_fetch_array($qry1,SQLSRV_FETCH_ASSOC);
 				$KNV = $Konversi;
 			}
 			$qryBK = sqlsrv_query($con,"SELECT a.no_pend,a.tgl_pend,a.kurs,b.kd_benang_fs,b.tarif,b.no_urut,b.amount,b.qty,ROUND(b.amount/b.qty,2) as price,( ROUND( b.amount / b.qty, 2 ) * a.kurs * b.tarif ) AS bm 
-			from tbl_exim_import a INNER JOIN tbl_exim_import_detail b ON a.id=b.id_import
+			from db_qc.tbl_exim_import a INNER JOIN db_qc.tbl_exim_import_detail b ON a.id=b.id_import
 			WHERE b.kd_benang_in='$BHN'");
 			$rBK = sqlsrv_fetch_array($qryBK);
-			$qryKONV = sqlsrv_query($con,"SELECT * FROM tk_konv_imp_temp WHERE SUBSTR(KD_KONV_EKS,12,20)='$Item' and KD_KONV_IMP='".$rBK['kd_benang_fs']."' AND SUBSTR(KD_KONV_EKS,1,10)='$KNV' LIMIT 1");
+			$qryKONV = sqlsrv_query($con,"SELECT TOP 1 * FROM db_qc.tk_konv_imp_temp 
+			WHERE SUBSTRING(KD_KONV_EKS, 12, 20) = '$Item' 
+			AND KD_KONV_IMP = '".$rBK['kd_benang_fs']."' 
+			AND SUBSTRING(KD_KONV_EKS, 1, 10) = '$KNV'");
 			$rKON = sqlsrv_fetch_array($qryKONV);
 			?>
 			<div class="form-group">
@@ -156,8 +161,8 @@ $data1 = sqlsrv_fetch_array($qry1,SQLSRV_FETCH_ASSOC);
 							<option value=""></option>
 							<?php $qryKON = sqlsrv_query($con,"SELECT a.ID_KONV, a.KD_KONV_EKS 
 FROM
-	tk_konv_eks_temp a
-INNER JOIN tk_konv_imp_temp b ON a.KD_KONV_EKS=b.KD_KONV_EKS	
+	db_qc.tk_konv_eks_temp a
+INNER JOIN db_qc.tk_konv_imp_temp b ON a.KD_KONV_EKS=b.KD_KONV_EKS	
 WHERE
 	a.KD_KONV_EKS LIKE '%".$rDCI['item']."'
 AND b.KD_KONV_IMP='".$rBK['kd_benang_fs']."'	
@@ -282,7 +287,7 @@ ORDER BY
 
 			</div>
 			<div class="box-body">
-				<?php $qry3 = sqlsrv_query($con,"SELECT * FROM tbl_exim_pengembalian WHERE id_cimd='".$_GET['id']."'"); ?>
+				<?php $qry3 = sqlsrv_query($con,"SELECT * FROM db_qc.tbl_exim_pengembalian WHERE id_cimd='".$_GET['id']."'"); ?>
 				<table id="example2" class="table table-bordered table-hover table-striped" width="100%">
 					<thead class="bg-green">
 						<tr>
@@ -372,7 +377,7 @@ ORDER BY
 if (isset($_POST['save'])) {
 	$note = str_replace("'", "''", $_POST['note']);
 	$note1 = str_replace("'", "''", $_POST['komkt']);
-	$qry1 = sqlsrv_query($con,"INSERT INTO tbl_exim_pengembalian SET
+	$qry1 = sqlsrv_query($con,"INSERT INTO db_qc.tbl_exim_pengembalian SET
 		id_cimd='".$_GET['id']."',
 		ko='".$_POST['no_ko']."',
 		ko_mk='$note1',

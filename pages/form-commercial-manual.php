@@ -11,7 +11,7 @@
 		if($_POST['tgl_sj']!=""){$tglsj=" tgl_sj='".$_POST['tgl_sj']."',";}else{$tglsj="tgl_sj=null,";}
 		if($_POST['tgl_peb']!=""){$tglpeb=" tgl_peb='".$_POST['tgl_peb']."',";}else{$tglpeb="tgl_peb=null,";}
 		if($_POST['tgl_etd']!=""){$tgletd=" etd='".$_POST['tgl_etd']."',";}else{$tgletd="etd=null,";}
-        $qry1=sqlsrv_query($con,"INSERT INTO tbl_exim_cim SET
+        $qry1=sqlsrv_query($con,"INSERT INTO db_qc.tbl_exim_cim SET
 		no_invoice='$noci',
 		consignee='".$_POST['consignee']."',
 		fasilitas='".$_POST['fasilitas']."',
@@ -25,7 +25,7 @@
 		$tgletd
 		note='$note',
 		author='".$_POST['author']."',
-		tgl_update=now()
+		tgl_update=GETDATE()
 		");
         if ($qry1) {
             //echo "<script>alert('Data Tersimpan');</script>";
@@ -54,7 +54,7 @@ if (isset($_POST['edit'])) {
 		if($_POST['tgl_sj']!=""){$tglsj=" tgl_sj='".$_POST['tgl_sj']."',";}else{$tglsj="tgl_sj=null,";}
 		if($_POST['tgl_peb']!=""){$tglpeb=" tgl_peb='".$_POST['tgl_peb']."',";}else{$tglpeb="tgl_peb=null,";}
 		if($_POST['tgl_etd']!=""){$tgletd=" etd='".$_POST['tgl_etd']."',";}else{$tgletd="etd=null,";}
-        $qry1=sqlsrv_query($con,"UPDATE tbl_exim_cim SET
+        $qry1=sqlsrv_query($con,"UPDATE db_qc.tbl_exim_cim SET
 		consignee='".$_POST['consignee']."',
 		fasilitas='".$_POST['fasilitas']."',
 		no_si='$nosi',
@@ -67,7 +67,7 @@ if (isset($_POST['edit'])) {
 		$tgletd
 		note='$note',
 		author='".$_POST['author']."',
-		tgl_update=now()
+		tgl_update=GETDATE()
 		WHERE id='".$_POST['id']."'
 		");
         if ($qry1) {
@@ -86,7 +86,7 @@ if (isset($_POST['edit'])) {
             echo "There's been a problem: " . mysql_error();
         }
     }
-$qCI=sqlsrv_query($con,"SELECT * FROM tbl_exim_cim WHERE no_invoice='".$_GET['ci']."' LIMIT 1");
+$qCI=sqlsrv_query($con,"SELECT TOP 1 * FROM db_qc.tbl_exim_cim WHERE no_invoice='".$_GET['ci']."' ");
 $cCI=sqlsrv_num_rows($qCI);
 $dCI=sqlsrv_fetch_array($qCI);
 ?>
@@ -114,7 +114,7 @@ $dCI=sqlsrv_fetch_array($qCI);
 					<select name="consignee" class="form-control" required>
 						<option value="">Pilih</option>
 						<?php
-						$qrycon= sqlsrv_query($con,"SELECT nama FROM tbl_exim_buyer ORDER BY nama ASC");
+						$qrycon= sqlsrv_query($con,"SELECT nama FROM db_qc.tbl_exim_buyer ORDER BY nama ASC");
 		                while($rcon=sqlsrv_fetch_array($qrycon)){
 						?>
 						<option value="<?php echo strtoupper($rcon['nama']); ?>" <?php if($dCI['consignee']==strtoupper($rcon['nama'])){echo "SELECTED";}?>><?php echo strtoupper($rcon['nama']); ?></option>

@@ -1,7 +1,7 @@
 <?php
 include("../koneksi.php");
     $modal_id=$_GET['id'];
-	$modal=sqlsrv_query($con,"SELECT * FROM `tbl_exim_buyer` WHERE id='$modal_id' ");
+	$modal=sqlsrv_query($con,"SELECT * FROM db_qc.tbl_exim_buyer WHERE id='$modal_id' ");
 while($r=sqlsrv_fetch_array($modal)){
 ?>
           <div class="modal-dialog ">

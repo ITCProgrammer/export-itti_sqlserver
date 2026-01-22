@@ -245,9 +245,14 @@ INNER JOIN db_qc.detail_tembakqty b ON a.id=b.id_kite WHERE  nokkkite='" . $_GET
 						</table>
 					<?php } else if ($_POST['template'] == "2") { ?>
 						<?php
-						$snkk1 = sqlsrv_query($con, "SELECT count(*) as roll,sum(net_wight) as berat,sum(yard_) as yard FROM tbl_tembakqty a 
-INNER JOIN detail_tembakqty b ON a.id=b.id_kite WHERE nokkkite='" . $_GET['nokk'] . "'");
-						$rowkk1 = sqlsrv_fetch_array($snkk1);
+						$snkk1 = sqlsrv_query($con, "SELECT 
+							COUNT(*) AS roll,
+							SUM(b.net_wight) AS berat,
+							SUM(b.yard_) AS yard 
+						FROM db_qc.tbl_tembakqty a 
+						INNER JOIN db_qc.detail_tembakqty b ON a.id = b.id_kite 
+						WHERE a.nokk = '" . $_GET['nokk'] . "'");
+						$rowkk1 = sqlsrv_fetch_array($snkk1, SQLSRV_FETCH_ASSOC);
 						?>
 						*<b> Total Roll <?php echo $rowkk1['roll']; ?> ,Total Berat <?php echo number_format($rowkk1['berat'], '2'); ?> Kg, Total Yard <?php echo number_format($rowkk1['yard'], '2'); ?></b><br><br>
 						<table id="example5" class="table table-bordered table-hover table-striped" width="100%">
@@ -278,8 +283,8 @@ INNER JOIN detail_tembakqty b ON a.id=b.id_kite WHERE nokkkite='" . $_GET['nokk'
 							</thead>
 							<tbody>
 								<?php
-								$datacek = sqlsrv_query($con, "SELECT * FROM tbl_tembakqty a 
-INNER JOIN detail_tembakqty b ON a.id=b.id_kite WHERE  nokkkite='" . $_GET['nokk'] . "' ORDER BY no_roll ASC");
+								$datacek = sqlsrv_query($con, "SELECT * FROM db_qc.tbl_tembakqty a 
+								INNER JOIN db_qc.detail_tembakqty b ON a.id=b.id_kite WHERE  nokkkite='" . $_GET['nokk'] . "' ORDER BY no_roll ASC");
 								$no = 1;
 								$n = 1;
 								$c = 0;
@@ -335,8 +340,8 @@ INNER JOIN detail_tembakqty b ON a.id=b.id_kite WHERE  nokkkite='" . $_GET['nokk
 						</table>
 					<?php } else if ($_POST['template'] == "3") { ?>
 						<?php
-						$snkk1 = sqlsrv_query($con, "SELECT count(*) as roll,sum(net_wight) as berat,sum(yard_) as yard FROM tbl_tembakqty a 
-INNER JOIN detail_tembakqty b ON a.id=b.id_kite WHERE nokkkite='" . $_GET['nokk'] . "'");
+						$snkk1 = sqlsrv_query($con, "SELECT count(*) as roll,sum(net_wight) as berat,sum(yard_) as yard FROM db_qc.tbl_tembakqty a 
+INNER JOIN db_qc.detail_tembakqty b ON a.id=b.id_kite WHERE nokkkite='" . $_GET['nokk'] . "'");
 						$rowkk1 = sqlsrv_fetch_array($snkk1);
 						?>
 						*<b> Total Roll <?php echo $rowkk1['roll']; ?> ,Total Berat <?php echo number_format($rowkk1['berat'], '2'); ?> Kg, Total Yard <?php echo number_format($rowkk1['yard'], '2'); ?></b><br><br>
@@ -374,8 +379,8 @@ INNER JOIN detail_tembakqty b ON a.id=b.id_kite WHERE nokkkite='" . $_GET['nokk'
 							</thead>
 							<tbody>
 								<?php
-								$datacek = sqlsrv_query($con, "SELECT * FROM tbl_tembakqty a 
-INNER JOIN detail_tembakqty b ON a.id=b.id_kite WHERE  nokkkite='" . $_GET['nokk'] . "' ORDER BY no_roll ASC");
+								$datacek = sqlsrv_query($con, "SELECT * FROM db_qc.tbl_tembakqty a 
+INNER JOIN db_qc.detail_tembakqty b ON a.id=b.id_kite WHERE  nokkkite='" . $_GET['nokk'] . "' ORDER BY no_roll ASC");
 								$no = 1;
 								$n = 1;
 								$c = 0;
@@ -469,37 +474,39 @@ INNER JOIN detail_tembakqty b ON a.id=b.id_kite WHERE  nokkkite='" . $_GET['nokk
 		</div>
 	</div>
 </div>
-<?php $qry4 = sqlsrv_query($con, "
-	SELECT
-	jo.DocumentNo,
-	so.PONumber,
-    SODA.PONumber as POADD,	
-	ISNULL(pmp.ProductCode,pm.hangerno) AS ProductCode,
-	pm.Color,
-	pm.ColorNo,
-	SOD.UnitPrice,
-	UD.UnitName,
-	so.SONumber,
-	SOD.Weight,
-	SOD.QuantityToOrder
-FROM
-	SODetails SOD
-LEFT JOIN db_qc.SalesOrders so ON SOD.SOID = so.ID
-LEFT JOIN db_qc.SODetailsAdditional SODA ON SODA.SODID=SOD.ID
-LEFT JOIN db_qc.UnitDescription UD ON UD.id = SOD.UnitID
-LEFT JOIN db_qc.JobOrders jo ON jo.SOID = so.ID
-LEFT JOIN db_qc.Partners p ON p.ID = so.CustomerID
-LEFT JOIN db_qc.ProductMaster pm ON pm.ID = SOD.ProductID
-LEFT JOIN db_qc.ProductPartner pmp ON sod.ProductID = pmp.ProductID
-AND so.BuyerID = pmp.PartnerID
-WHERE
-	so.SONumber LIKE '" . $_GET['pi'] . "'
-ORDER BY
-	SOD.ID ASC"); ?>
+<?php
+// $qry4 = sqlsrv_query($conn, "
+// 	SELECT
+// 	jo.DocumentNo,
+// 	so.PONumber,
+//     SODA.PONumber as POADD,	
+// 	ISNULL(pmp.ProductCode,pm.hangerno) AS ProductCode,
+// 	pm.Color,
+// 	pm.ColorNo,
+// 	SOD.UnitPrice,
+// 	UD.UnitName,
+// 	so.SONumber,
+// 	SOD.Weight,
+// 	SOD.QuantityToOrder
+// FROM
+// 	SODetails SOD
+// LEFT JOIN db_qc.SalesOrders so ON SOD.SOID = so.ID
+// LEFT JOIN db_qc.SODetailsAdditional SODA ON SODA.SODID=SOD.ID
+// LEFT JOIN db_qc.UnitDescription UD ON UD.id = SOD.UnitID
+// LEFT JOIN db_qc.JobOrders jo ON jo.SOID = so.ID
+// LEFT JOIN db_qc.Partners p ON p.ID = so.CustomerID
+// LEFT JOIN db_qc.ProductMaster pm ON pm.ID = SOD.ProductID
+// LEFT JOIN db_qc.ProductPartner pmp ON sod.ProductID = pmp.ProductID
+// AND so.BuyerID = pmp.PartnerID
+// WHERE
+// 	so.SONumber LIKE '" . $_GET['pi'] . "'
+// ORDER BY
+// 	SOD.ID ASC"); 
+?>
 <?php
 
 if (isset($_POST['save'])) {
-	$qry1 = sqlsrv_query($con, "INSERT INTO tbl_exim_pim SET
+	$qry1 = sqlsrv_query($con, "INSERT INTO db_qc.tbl_exim_pim SET
 		no_pi='" . $_POST['no_pi'] . "',
 		bon_order='" . $_POST['bon_order'] . "',
 		buyer='" . $_POST['buyer'] . "',
@@ -514,7 +521,7 @@ if (isset($_POST['save'])) {
 		tgl_terima='" . $_POST['tgl_terima'] . "',
 		tgl_update=now()
 		");
-	$cekPI = sqlsrv_query($con, "SELECT id FROM tbl_exim_pim WHERE no_pi='" . $_POST['no_pi'] . "' ORDER BY id DESC ");
+	$cekPI = sqlsrv_query($con, "SELECT id FROM db_qc.tbl_exim_pim WHERE no_pi='" . $_POST['no_pi'] . "' ORDER BY id DESC ");
 	$rcekPI = sqlsrv_fetch_array($cekPI);
 
 	$po = "";
@@ -528,7 +535,7 @@ if (isset($_POST['save'])) {
 		} else {
 			$po = str_replace("'", "''", $r1['POADD']);
 		}
-		$sqlHS1 = sqlsrv_query($con, "SELECT hs_code FROM tbl_exim_code WHERE no_item='" . $r1['ProductCode'] . "' LIMIT 1");
+		$sqlHS1 = sqlsrv_query($con, "SELECT hs_code FROM db_qc.tbl_exim_code WHERE no_item='" . $r1['ProductCode'] . "' LIMIT 1");
 		$rHS1 = sqlsrv_fetch_array($sqlHS1);
 		if ($r1['UnitName'] == "yard") {
 			$per = "yd";
@@ -545,7 +552,7 @@ if (isset($_POST['save'])) {
 		if ($r1['UnitName'] == "yard") {
 			$yd = $r1['QuantityToOrder'];
 		}
-		$qry1 = sqlsrv_query($con, "INSERT INTO tbl_exim_pim_detail SET
+		$qry1 = sqlsrv_query($con, "INSERT INTO db_qc.tbl_exim_pim_detail SET
 		id_pi='" . $rcekPI['id'] . "',
 		po='$po',
 		item='" . $r1['ProductCode'] . "',

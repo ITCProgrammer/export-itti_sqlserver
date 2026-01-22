@@ -19,14 +19,14 @@ include("../koneksi.php");
 					</thead>
 					<tbody>
 					<?php 
-					$qry3=mysql_query("SELECT * FROM tbl_exim_cim_detail a 
+					$qry3=sqlsrv_query($con, "SELECT * FROM db_qc.tbl_exim_cim_detail a 
 					WHERE a.no_bclkt='$_GET[id]' ORDER BY a.id ASC");	
 							
-					while($r=mysql_fetch_array($qry3)){
+					while($r=sqlsrv_fetch_array($qry3, SQLSRV_FETCH_ASSOC)){
 					
 					?>
 						<tr>
-							<td align="center"><?php echo $r[no_invoice]; ?></td>
+							<td align="center"><?php echo $r['no_invoice']; ?></td>
 						</tr>
 						<?php
   } ?>

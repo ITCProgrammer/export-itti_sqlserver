@@ -1,8 +1,8 @@
 <?php
 include("../koneksi.php");
     $modal_id=$_GET['id'];
-	$modal=mysql_query("SELECT * FROM `tbl_exim_cim` WHERE id='$modal_id' ");
-while($r=mysql_fetch_array($modal)){
+	$modal=sqlsrv_query("SELECT * FROM db_qc.tbl_exim_cim WHERE id='$modal_id' ");
+while($r=sqlsrv_fetch_array($modal)){
 ?>
           <div class="modal-dialog ">
             <div class="modal-content">

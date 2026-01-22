@@ -70,13 +70,13 @@ include "koneksi.php";
             </thead>
             <tbody>
               <?php
-              $sql = sqlsrv_query($con,"SELECT * FROM tbl_exim_cim ORDER BY etd ASC");
+              $sql = sqlsrv_query($con,"SELECT * FROM db_qc.tbl_exim_cim ORDER BY etd ASC");
               while ($r = sqlsrv_fetch_array($sql)) {
                 $no++;
                 $bgcolor = ($col++ & 1) ? 'gainsboro' : 'antiquewhite';
-                $sqlck = sqlsrv_query($con,"SELECT * FROM tbl_exim_cim_detail WHERE id_cim='".$r['id']."' ");
+                $sqlck = sqlsrv_query($con,"SELECT * FROM db_qc.tbl_exim_cim_detail WHERE id_cim='".$r['id']."' ");
                 $ck = sqlsrv_num_rows($sqlck);
-                $sqlJML = sqlsrv_query($con,"SELECT count(*) as jml FROM tbl_exim_cim_detail WHERE id_cim='".$r['id']."' ");
+                $sqlJML = sqlsrv_query($con,"SELECT count(*) as jml FROM db_qc.tbl_exim_cim_detail WHERE id_cim='".$r['id']."' ");
                 $ckJML = sqlsrv_fetch_array($sqlJML);
               ?>
                 <tr bgcolor="<?php echo $bgcolor; ?>">
@@ -93,7 +93,7 @@ include "koneksi.php";
                     <font size="-1"><?php echo $r['fasilitas']; ?></font>
                   </td>
                   <td align="center">
-                    <font size="-1"><?php echo $r['tgl_sj']; ?></font>
+                    <font size="-1"><?php echo $r['tgl_sj'] ? $r['tgl_sj']->format('Y-m-d') : null; ?></font>
                   </td>
                   <td align="center">
                     <font size="-1"><?php echo $r['no_si']; ?></font>

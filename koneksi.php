@@ -12,7 +12,7 @@ $options = array(
 );
 
 if ($con) {
-     echo "Koneksi berhasil!<br>";
+     echo "";
 } else {
      echo "Koneksi Gagal: " . sqlsrv_errors()[0]['message'];
      die(print_r(sqlsrv_errors(), true));
