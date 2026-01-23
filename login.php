@@ -192,7 +192,6 @@ if ($_POST) { //login user
   $level    =  $_POST['level'];
   $query = "select DISTINCT * from db_qc.user_login ul where ul.\"user\"='$username' and password='$password' and level = '$level' ";
   $sql = sqlsrv_query($con, $query, $dt, $options);
-  print($sql);
   if($sql === false) {
     die(print_r(sqlsrv_errors(), true));
   }

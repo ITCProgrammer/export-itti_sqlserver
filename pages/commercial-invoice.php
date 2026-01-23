@@ -139,43 +139,40 @@ if ($Thn != "") {
             <tbody>
               <?php
               if (empty($Thn1)) {
-                $sql = sqlsrv_query($con, "SELECT TOP 500 * FROM db_qc.tbl_exim ORDER BY id DESC");
+                $sql = sqlsrv_query($con, "SELECT TOP 500 * FROM db_qc.tbl_exim ORDER BY id DESC ");
               } else {
-                $sql = sqlsrv_query($con, "SELECT * FROM db_qc.tbl_exim WHERE YEAR(tgl)='$Thn1' ORDER BY id DESC");
-              }
-              if ($sql === false) {
-                die(print_r(sqlsrv_errors(), true));
+                $sql = sqlsrv_query($con, "SELECT * FROM db_qc.tbl_exim 
+                WHERE YEAR(tgl) = '$Thn1' 
+                ORDER BY id DESC");
               }
               $no = 1;
-              while ($rowd = sqlsrv_fetch_array($sql, SQLSRV_FETCH_ASSOC)) {
+              while ($rowd = sqlsrv_fetch_array($sql)) {
                 $qrypl = sqlsrv_query($con, "SELECT count(*) jml
                                       FROM db_qc.detail_pergerakan_stok a
                                       INNER JOIN db_qc.tmp_detail_kite b ON b.id=a.id_detail_kj
                                       INNER JOIN db_qc.tbl_kite c ON c.id=b.id_kite
                                       WHERE refno='" . $rowd['listno'] . "'");
-                $cpl = sqlsrv_fetch_array($qrypl, SQLSRV_FETCH_ASSOC);
+                $cpl = sqlsrv_fetch_array($qrypl);
 
                 $sqldt1 = sqlsrv_query($con, " SELECT 
-                                            SUM(a.weight) AS kgs,
-                                            SUM(a.yard_) AS yds,
-                                            SUM(b.netto) AS pcs,
-                                            b.ukuran,
-                                            c.user_packing,
-                                            c.warna
-                                        FROM db_qc.detail_pergerakan_stok a
-                                        INNER JOIN db_qc.tmp_detail_kite b ON b.id = a.id_detail_kj
-                                        INNER JOIN db_qc.tbl_kite c ON c.id = b.id_kite
-                                        WHERE a.refno='" . $rowd['listno'] . "' 
-                                        GROUP BY 
-                                            b.ukuran, 
-                                            c.user_packing, 
-                                            c.warna ");
-                $r1 = sqlsrv_fetch_array($sqldt1, SQLSRV_FETCH_ASSOC);
-                if ($r1 === false) {
-                  die(print_r(sqlsrv_errors(), true));
-                }
+                    SUM(a.weight) AS kgs,
+                    SUM(a.yard_) AS yds,
+                    SUM(b.netto) AS pcs,
+                    b.ukuran,
+                    c.user_packing,
+                    c.warna
+                FROM db_qc.detail_pergerakan_stok a
+                INNER JOIN db_qc.tmp_detail_kite b ON b.id = a.id_detail_kj
+                INNER JOIN db_qc.tbl_kite c ON c.id = b.id_kite
+                WHERE refno = '" . $rowd['listno'] . "'
+                GROUP BY 
+                    b.ukuran, 
+                    c.user_packing, 
+                    c.warna ");
+                $r1 = sqlsrv_fetch_array($sqldt1);
+
                 $sqlsi = sqlsrv_query($con, "SELECT * FROM db_qc.tbl_exim_si WHERE no_si='" . $rowd['no_si'] . "'");
-                $r2 = sqlsrv_fetch_array($sqlsi, SQLSRV_FETCH_ASSOC);
+                $r2 = sqlsrv_fetch_array($sqlsi);
               ?>
                 <tr>
                   <td style="vertical-align: middle;" align="center"><?php echo $no; ?></td>
@@ -250,12 +247,12 @@ if ($Thn != "") {
                                                         FROM db_qc.detail_pergerakan_stok a
                                                         INNER JOIN db_qc.tmp_detail_kite b ON b.id = a.id_detail_kj
                                                         INNER JOIN db_qc.tbl_kite c ON c.id = b.id_kite
-                                                        WHERE a.refno = '" . $rowd['listno'] . "'
+                                                        WHERE refno = '" . $rowd['listno'] . "' 
                                                           AND a.lott = '" . $dt['id'] . "'
                                                         GROUP BY 
                                                             b.ukuran, 
                                                             c.user_packing, 
-                                                            c.warna ");
+                                                            c.warna");
                                                         $dt1 = sqlsrv_fetch_array($sqldt1);
 
                                                         if ($dt['price_by'] == "KGS") {
@@ -411,7 +408,7 @@ if ($Thn != "") {
                         <select type="text" name="nm_messrs" id="nm_messrs" class="form-control" style="width: 100%;">
                           <option value="">-Pilih-</option>
                           <?php $qrymes = sqlsrv_query($con, "SELECT * FROM db_qc.tbl_exim_buyer ORDER BY nama ASC");
-                          while ($rmes = sqlsrv_fetch_assoc($qrymes)) { ?>
+                          while ($rmes = sqlsrv_fetch_array($qrymes, SQLSRV_FETCH_ASSOC)) { ?>
                             <option value="<?php echo strtoupper($rmes['nama']); ?>" <?php if ($_GET['mess'] != "") {
                                                                                         if ($_GET['mess'] == $rmes['nama']) {
                                                                                           echo "SELECTED";
@@ -437,7 +434,7 @@ if ($Thn != "") {
                         <select class="form-control" name="nm_consgne" id="nm_consgne" style="width: 100%;">
                           <option value="">-Pilih-</option>
                           <?php $qrycon = sqlsrv_query($con, "SELECT * FROM db_qc.tbl_exim_buyer ORDER BY nama ASC");
-                          while ($rcon = sqlsrv_fetch_assoc($qrycon)) { ?>
+                          while ($rcon = sqlsrv_fetch_array($qrycon, SQLSRV_FETCH_ASSOC)) { ?>
                             <option value="<?php echo strtoupper($rcon['nama']); ?>"
                               <?php if ($_GET['cons'] != "") {
                                 if ($_GET['cons'] == $rcon['nama']) {
@@ -649,10 +646,10 @@ if ($Thn != "") {
                         <select class="form-control input-sm" name="no_si" id="no_si">
                           <option value="">Pilih</option>
                           <?php $qrysi = sqlsrv_query($con, "SELECT * FROM db_qc.tbl_exim_si");
-                                                                                                                                while ($rsi = sqlsrv_fetch_assoc($qrysi)) { ?>
-                            <option value="<?php echo $rsi['no_si']; ?>" <?php if ($row['no_si'] == $rsi['no_si']) {
-                                                                                                                                    echo "SELECTED";
-                                                                                                                                  } ?>><?php echo $rsi['no_si']; ?></option>
+                          while ($rsi = sqlsrv_fetch_array($qrysi, SQLSRV_FETCH_ASSOC)) { ?>
+                          <option value="<?php echo $rsi['no_si']; ?>" <?php if ($row['no_si'] == $rsi['no_si']) {
+                            echo "SELECTED";
+                          } ?>><?php echo $rsi['no_si']; ?></option>
                           <?php } ?>
                         </select>
                       </div>
