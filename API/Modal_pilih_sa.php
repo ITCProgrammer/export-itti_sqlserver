@@ -24,8 +24,8 @@ $data = sqlsrv_fetch_array($sqldt);
                     <div class="col-lg-9 input-group">
                         <select name="no_sa" id="no_sa" class="form-control input-sm">
                             <option selected value="">Pilih</option>
-                            <?php $qrysi = mysql_query("SELECT * FROM tbl_exim_sa");
-                            while ($rsi = mysql_fetch_assoc($qrysi)) { ?>
+                            <?php $qrysi = sqlsrv_query("SELECT * FROM db_qc.tbl_exim_sa");
+                            while ($rsi = sqlsrv_fetch_assoc($qrysi)) { ?>
                                 <option value="<?php echo $rsi['no_sa']; ?>" <?php if ($data['no_sa'] == $rsi['no_sa']) {
                                                                                     echo "SELECTED";
                                                                                 } ?>><?php echo $rsi['no_sa']; ?></option>

@@ -2,31 +2,33 @@
 session_start();
 include '../koneksi.php';
 
-$sql = sqlsrv_query($con,"SELECT trim(no_mc) as no_mc,nokk
-FROM `tbl_kite`
-WHERE `tbl_kite`.`no_order` = '".$_POST['no_order']."' 
-AND `tbl_kite`.`no_po` like '".$_POST['no_po']."' 
-AND `tbl_kite`.`no_item` = '".$_POST['no_item']."' 
-AND `tbl_kite`.`warna` = '".$_POST['warna']."' 
-AND `tbl_kite`.`no_lot` = '".$_POST['no_lot']."'
-GROUP BY no_mc");
+$sql = sqlsrv_query($con, "SELECT DISTINCT 
+    TRIM(no_mc) AS no_mc, 
+    nokk
+FROM db_qc.tbl_kite
+WHERE no_order = '" . $_POST['no_order'] . "' 
+  AND no_po LIKE '" . $_POST['no_po'] . "' 
+  AND no_item = '" . $_POST['no_item'] . "' 
+  AND warna = '" . $_POST['warna'] . "' 
+  AND no_lot = '" . $_POST['no_lot'] . "'");
 
-$data = mysql_fetch_array($sql);
-$count = mysql_num_rows($sql);
+$data = sqlsrv_fetch_array($sql);
+$count = sqlsrv_num_rows($sql);
 
 
-$sqlN = sqlsrv_query($con,"SELECT
+$sqlN = sqlsrv_query($con, "SELECT
     refno,
-    count(refno) AS rol,
-    sum(weight) AS qty
+    COUNT(refno) AS rol,
+    SUM(weight) AS qty
 FROM
-    detail_pergerakan_stok
+    db_qc.detail_pergerakan_stok
 WHERE
-    nokk = '".$data['nokk']."' and not ISNULL(refno)
+    nokk = '" . $data['nokk'] . "' 
+    AND refno IS NOT NULL  
 GROUP BY
     refno");
 
-$note = mysql_fetch_array($sqlN);
+$note = sqlsrv_fetch_array($sqlN);
 
 if ($count > 0) {
     $res = array(

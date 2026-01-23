@@ -24,12 +24,12 @@ include '../koneksi.php';
                             <label for="" class="col-lg-2 control-label input-xs">No. PO ▶</label>
                             <div class="col-lg-6 input-group">
                                 <select class="form-control input-xs" type="text" name="nopo_list" id="nopo_list">
-                                    <?php $sqlnopo =sqlsrv_query($con, "SELECT DISTINCT 
+                                    <?php $sqlnopo = sqlsrv_query($con, "SELECT DISTINCT 
                                                         TRIM(no_po) AS no_po
                                                     FROM db_qc.tbl_kite
                                                     WHERE no_order = '$_GET[dono]'
                                                     ORDER BY no_po ASC;"); ?>
-                                    <?php while ($rp =sqlsrv_fetch_array($sqlnopo, SQLSRV_FETCH_ASSOC)) { ?>
+                                    <?php while ($rp = sqlsrv_fetch_array($sqlnopo, SQLSRV_FETCH_ASSOC)) { ?>
                                         <option value="<?php echo urlencode($rp['no_po']); ?>" <?php if ($_GET['nopo'] == $rp['no_po']) {
                                                                                                     echo "SELECTED";
                                                                                                 } ?>><?php echo str_replace("'", "''", $rp['no_po']); ?>
@@ -43,12 +43,12 @@ include '../koneksi.php';
                             <div class="col-lg-6 input-group">
                                 <select class="form-control input-xs" type="text" name="noitem_list" id="noitem_list">
                                     <option value=""></option>
-                                    <?php $sqlnoitem =sqlsrv_query($con, "SELECT TRIM(no_item) AS no_item
+                                    <?php $sqlnoitem = sqlsrv_query($con, "SELECT TRIM(no_item) AS no_item
                                                         FROM db_qc.tbl_kite
                                                         WHERE no_order = '$_GET[dono]' 
                                                         AND no_po = '$_GET[nopo]'
                                                         GROUP BY no_item ");
-                                    while ($rp =sqlsrv_fetch_array($sqlnoitem, SQLSRV_FETCH_ASSOC)) { ?>
+                                    while ($rp = sqlsrv_fetch_array($sqlnoitem, SQLSRV_FETCH_ASSOC)) { ?>
                                         <option value="<?php echo str_replace("'", "''", $rp['no_item']); ?>" <?php if ($rp['no_item'] == $_GET['noitem']) {
                                                                                                                     echo "SELECTED";
                                                                                                                 } ?>><?php echo str_replace("'", "''", $rp['no_item']); ?></option>
@@ -61,11 +61,11 @@ include '../koneksi.php';
                             <div class="col-lg-6 input-group">
                                 <select class="form-control input-xs" type="text" name="warna_list" id="warna_list">
                                     <option value=""></option>
-                                    <?php $sqlwarna =sqlsrv_query($con, "SELECT TRIM(warna) as warna
+                                    <?php $sqlwarna = sqlsrv_query($con, "SELECT TRIM(warna) as warna
                                                             FROM db_qc.tbl_kite
                                                             WHERE db_qc.tbl_kite.no_order = '$_GET[dono]' AND tbl_kite.no_po = '$_GET[nopo]' AND  tbl_kite.no_item = '$_GET[noitem]'
                                                             GROUP BY warna ");
-                                    while ($rp =sqlsrv_fetch_array($sqlwarna, SQLSRV_FETCH_ASSOC)) { ?>
+                                    while ($rp = sqlsrv_fetch_array($sqlwarna, SQLSRV_FETCH_ASSOC)) { ?>
                                         <option value="<?php echo str_replace("'", "''", $rp['warna']); ?>" <?php if ($rp['warna'] == $_GET['warna']) {
                                                                                                                 echo "SELECTED";
                                                                                                             } ?>><?php echo str_replace("'", "''", $rp['warna']); ?></option>
@@ -80,14 +80,14 @@ include '../koneksi.php';
                             <div class="col-lg-6 input-group">
                                 <select class="form-control input-xs" type="text" name="lot_list" id="lot_list">
                                     <option selected value=""></option>
-                                    <?php $sqllot =sqlsrv_query($con, "SELECT LTRIM(RTRIM(no_lot)) AS no_lot 
+                                    <?php $sqllot = sqlsrv_query($con, "SELECT LTRIM(RTRIM(no_lot)) AS no_lot 
                                                     FROM db_qc.tbl_kite
                                                     WHERE no_order = '$_GET[dono]' 
                                                     AND no_po = '$_GET[nopo]' 
                                                     AND no_item = '$_GET[noitem]' 
                                                     AND warna = '$_GET[warna]'
                                                     GROUP BY no_lot ");
-                                    while ($rp =sqlsrv_fetch_array($sqllot, SQLSRV_FETCH_ASSOC)) { ?>
+                                    while ($rp = sqlsrv_fetch_array($sqllot, SQLSRV_FETCH_ASSOC)) { ?>
                                         <option value="<?php echo str_replace("'", "''", $rp['no_lot']); ?>" <?php if ($rp['no_lot'] == $_GET['lot']) {
                                                                                                                     echo "SELECTED";
                                                                                                                 } ?>><?php echo str_replace("'", "''", $rp['no_lot']); ?></option>
@@ -165,13 +165,13 @@ include '../koneksi.php';
                                 $cwhere11 .= " ";
                             }
 
-                            $datasum =sqlsrv_query($con, "SELECT
+                            $datasum = sqlsrv_query($con, "SELECT
                                 tbl_kite.no_lot,
-                                MAX(tbl_kite.nokk) AS nokk, -- Harus diagregasi atau masuk GROUP BY
+                                MAX(tbl_kite.nokk) AS nokk,
                                 SUM(CASE WHEN detail_pergerakan_stok.sisa <> 'FOC' THEN detail_pergerakan_stok.weight ELSE 0 END) AS kgs,
                                 SUM(CASE WHEN detail_pergerakan_stok.sisa <> 'FOC' THEN detail_pergerakan_stok.yard_ ELSE 0 END) AS yds,
                                 SUM(tmp_detail_kite.netto) AS pcs,
-                                MAX(detail_pergerakan_stok.pack) AS pack, -- Harus diagregasi atau masuk GROUP BY
+                                MAX(detail_pergerakan_stok.pack) AS pack, 
                                 COUNT(detail_pergerakan_stok.weight) AS jml_pack,
                                 SUM(CASE WHEN detail_pergerakan_stok.sisa = 'FOC' THEN detail_pergerakan_stok.weight ELSE 0 END) AS foc
                             FROM
@@ -191,15 +191,15 @@ include '../koneksi.php';
                                 MAX(detail_pergerakan_stok.nokk), 
                                 MAX(detail_pergerakan_stok.no_roll) ASC;");
 
-                            while ($rdata =sqlsrv_fetch_array($datasum, SQLSRV_FETCH_ASSOC)) {
-                                $mySql =sqlsrv_query($con, "SELECT tempat, catatan 
-                                        FROM mutasi_kain 
+                            while ($rdata = sqlsrv_fetch_array($datasum, SQLSRV_FETCH_ASSOC)) {
+                                $mySql = sqlsrv_query($con, "SELECT tempat, catatan 
+                                        FROM db_qc.mutasi_kain 
                                         WHERE nokk = '$rdata[nokk]' 
                                         AND tempat <> '' 
                                         AND tempat IS NOT NULL 
                                         ORDER BY id DESC;");
-                                $myBlk =sqlsrv_fetch_array($mySql, SQLSRV_FETCH_ASSOC);
-                                $mySql1 =sqlsrv_query($con, "SELECT
+                                $myBlk = sqlsrv_fetch_array($mySql, SQLSRV_FETCH_ASSOC);
+                                $mySql1 = sqlsrv_query($con, "SELECT
                                     MAX(a.blok) AS blok, 
                                     b.sisa,
                                     b.nokk
@@ -217,7 +217,7 @@ include '../koneksi.php';
                                 ORDER BY
                                     MAX(a.tgl_update), 
                                     MAX(a.id); ");
-                                $myBlk1 =sqlsrv_fetch_array($mySql1, SQLSRV_FETCH_ASSOC);
+                                $myBlk1 = sqlsrv_fetch_array($mySql1, SQLSRV_FETCH_ASSOC);
                             ?>
                                 <tr align="center">
                                     <td><?php
@@ -281,9 +281,9 @@ include '../koneksi.php';
                         <tbody>
                             <?php
 
-                            $datacek =sqlsrv_query($con, "SELECT 
-                                tmp_detail_kite.id, -- Kolom yang di-group
-                                MIN(detail_pergerakan_stok.id) AS kd, -- Alias 'kd' menggunakan agregat agar valid
+                            $datacek = sqlsrv_query($con, "SELECT 
+                                tmp_detail_kite.id, 
+                                MIN(detail_pergerakan_stok.id) AS kd, 
                                 MAX(pergerakan_stok.typestatus) AS typestatus,
                                 MAX(detail_pergerakan_stok.nokk) AS nokk,
                                 MAX(detail_pergerakan_stok.no_roll) AS no_roll
@@ -305,10 +305,10 @@ include '../koneksi.php';
                             $no = 1;
                             $n = 1;
                             $c = 0;
-                            while ($rowd =sqlsrv_fetch_array($datacek, SQLSRV_FETCH_ASSOC)) {
-                                $cek =sqlsrv_query($con, "select * from db_qc.detail_pergerakan_stok 
+                            while ($rowd = sqlsrv_fetch_array($datacek, SQLSRV_FETCH_ASSOC)) {
+                                $cek = sqlsrv_query($con, "select * from db_qc.detail_pergerakan_stok 
 		                                                 where id='$rowd[kd]' and refno!=''");
-                                $crow =sqlsrv_fetch_array($cek, SQLSRV_FETCH_ASSOC);
+                                $crow = sqlsrv_fetch_array($cek, SQLSRV_FETCH_ASSOC);
                                 if ($_SESSION['password'] == 'user') {
                                     $crow = 0;
                                 }
