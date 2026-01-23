@@ -1,6 +1,6 @@
 <?php
 session_start();
-include '../koneksi.php';
+// include '../koneksi.php';
 
 // $sqlpo = sqlsrv_query($conn," SELECT e.ProductCode FROM SalesOrders a
 //                         INNER JOIN SODetails b ON a.ID=b.SOID
@@ -16,15 +16,15 @@ include '../koneksi.php';
 //     $items[] = $val['ProductCode'];
 // }
 
-if ($count > 0) {
-    $json_data = array(
-        "data"            => $items,
-        "msg"             => 505
-    );
-} else {
-    $json_data = array(
-        "data"            => '',
-        "msg"             => 404
-    );
-}
-echo json_encode($json_data);
+// if ($count > 0) {
+//     $json_data = array(
+//         "data"            => $items,
+//         "msg"             => 505
+//     );
+// } else {
+//     $json_data = array(
+//         "data"            => '',
+//         "msg"             => 404
+//     );
+// }
+// echo json_encode($json_data);

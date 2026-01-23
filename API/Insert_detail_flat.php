@@ -5,7 +5,7 @@ include '../koneksi.php';
 $po = str_replace("'", "''", $_POST['no_po']);
 $desc1 = str_replace("'", "''", $_POST['desc1']);
 $desc2 = str_replace("'", "''", $_POST['desc2']);
-$sql = mysql_query("INSERT INTO db_qc.tbl_exim_detail (
+$sql = sqlsrv_query($con, "INSERT INTO db_qc.tbl_exim_detail (
 		id_list, 
 		no_order, 
 		no_po, 

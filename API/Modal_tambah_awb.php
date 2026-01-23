@@ -1,7 +1,7 @@
 <?php
 session_start();
 include '../koneksi.php';
-$sqlcek = sqlsrv_query("SELECT TOP 1 * FROM db_qc.tbl_exim WHERE listno='$_GET[listno]' ");
+$sqlcek = sqlsrv_query($con, "SELECT TOP 1 * FROM db_qc.tbl_exim WHERE listno='$_GET[listno]' ");
 $rcek = sqlsrv_fetch_array($sqlcek);
 ?>
 <div class="modal-content">
