@@ -2,10 +2,10 @@
 session_start();
 include '../koneksi.php';
 $requestData = $_REQUEST;
-$sqlFid = sqlsrv_query($con,"SELECT id FROM db_qc.tbl_exim WHERE listno = '".$requestData['listno']."' LIMIT 1");
+$sqlFid = sqlsrv_query($con,"SELECT TOP 1 id FROM db_qc.tbl_exim WHERE listno = '".$requestData['listno']."' ");
 $dataId = sqlsrv_fetch_array($sqlFid);
 $columns = array(0 => 'no_order', 1 => 'no_po', 2 => 'no_item', 3 => 'style', 4 => 'warna', 5 => 'unit_price', 6 => 'weight', 8 => 'price_by', 9 => 'kgs', 10 => 'yds', 11 => 'pcs', 12 => 'kgs_foc', 13 => 'action');
-$sql = "SELECT * FROM db_qc.tbl_exim_detail WHERE id_list = '".$dataId['id']."' ";
+$sql = "SELECT TOP " . $requestData['start'] . " * FROM db_qc.tbl_exim_detail WHERE id_list = '".$dataId['id']."' ";
 $query = sqlsrv_query($con,$sql) or die("data_server.php: get dataku");
 $totalData = sqlsrv_num_rows($query);
 $totalFiltered = $totalData;
@@ -20,19 +20,33 @@ if (!empty($requestData['search']['value'])) {
 }
 $query = sqlsrv_query($con,$sql) or die("data_server.php: get dataku1");
 $totalFiltered = sqlsrv_num_rows($query);
-$sql .= " ORDER BY " . $columns[$requestData['order'][0]['column']] . "  " . $requestData['order'][0]['dir'] . "  LIMIT " . $requestData['start'] . " ," . $requestData['length'] . "   ";
+// $sql .= " ORDER BY " . $columns[$requestData['order'][0]['column']] . "  " . $requestData['order'][0]['dir'] . "  LIMIT " . $requestData['start'] . " ," . $requestData['length'] . "   ";
+$sql .= " ORDER BY " . $columns[$requestData['order'][0]['column']] . "  " . $requestData['order'][0]['dir'] . " ";
+// $sql .= "  LIMIT " . $requestData['start'] . " ," . $requestData['length'] . "   ";
+
 $query = sqlsrv_query($con,$sql) or die("data_server.php: get dataku2");
 $data = array();
 $no = 1;
 while ($row = sqlsrv_fetch_array($query)) {
     $nestedData = array();
-    $sql_KYP = sqlsrv_query($con,"SELECT sum(if(a.sisa='FOC',0,a.weight)) as kgs , sum(if(a.sisa='FOC',0,a.yard_)) as yds,sum(if(a.sisa='FOC',0,b.netto)) as pcs,
-    sum(if(a.sisa='FOC',a.weight,0)) as kgs_foc, b.ukuran, c.user_packing ,c.warna
+    $sql_KYP = sqlsrv_query($con,"SELECT 
+        SUM(CASE WHEN a.sisa = 'FOC' THEN 0 ELSE a.weight END) AS kgs, 
+        SUM(CASE WHEN a.sisa = 'FOC' THEN 0 ELSE a.yard_ END) AS yds,
+        SUM(CASE WHEN a.sisa = 'FOC' THEN 0 ELSE b.netto END) AS pcs,
+        SUM(CASE WHEN a.sisa = 'FOC' THEN a.weight ELSE 0 END) AS kgs_foc, 
+        b.ukuran, 
+        c.user_packing, 
+        c.warna
     FROM db_qc.detail_pergerakan_stok a
-    INNER JOIN db_qc.tmp_detail_kite b ON b.id=a.id_detail_kj
-    INNER JOIN db_qc.tbl_kite c ON c.id=b.id_kite  
-    WHERE refno = '".$requestData['listno']."' AND a.lott = '".$row['id']."'
-    GROUP BY b.ukuran,c.warna");
+    INNER JOIN db_qc.tmp_detail_kite b ON b.id = a.id_detail_kj
+    INNER JOIN db_qc.tbl_kite c ON c.id = b.id_kite  
+    WHERE 
+        a.refno = '".$requestData['listno']."' 
+        AND a.lott = '".$row['id']."'
+    GROUP BY 
+        b.ukuran, 
+        c.warna, 
+        c.user_packing;");
     $row_kyp = sqlsrv_fetch_array($sql_KYP);
     if ($row['price_by'] == "KGS") {
         $amount_us =  number_format($row_kyp['kgs'] * $row['unit_price'], 2);

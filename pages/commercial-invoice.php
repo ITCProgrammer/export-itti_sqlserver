@@ -169,7 +169,7 @@ if ($Thn != "") {
                                         GROUP BY 
                                             b.ukuran, 
                                             c.user_packing, 
-                                            c.warna;");
+                                            c.warna ");
                 $r1 = sqlsrv_fetch_array($sqldt1, SQLSRV_FETCH_ASSOC);
                 if ($r1 === false) {
                   die(print_r(sqlsrv_errors(), true));
@@ -255,7 +255,7 @@ if ($Thn != "") {
                                                         GROUP BY 
                                                             b.ukuran, 
                                                             c.user_packing, 
-                                                            c.warna;");
+                                                            c.warna ");
                                                         $dt1 = sqlsrv_fetch_array($sqldt1);
 
                                                         if ($dt['price_by'] == "KGS") {

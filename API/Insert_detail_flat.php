@@ -2,20 +2,33 @@
 session_start();
 include '../koneksi.php';
 
-$po = str_replace("'", "''", $_POST[no_po]);
-$desc1 = str_replace("'", "''", $_POST[desc1]);
-$desc2 = str_replace("'", "''", $_POST[desc2]);
-$sql = mysql_query("INSERT INTO `tbl_exim_detail` SET
-	`id_list`='$_POST[id]',
-	`no_order`='$_POST[dono]',
-	`no_po`='$po',
-	`no_item`='$_POST[item]',
-	`deskripsi`='$desc1',
-	`deskripsi2`='$desc2',
-	`warna`='$_POST[warna]',
-	`unit_price`='$_POST[unit]',
-	`price_by`='$_POST[price_by]',
-	`tgl_update`=now()");
+$po = str_replace("'", "''", $_POST['no_po']);
+$desc1 = str_replace("'", "''", $_POST['desc1']);
+$desc2 = str_replace("'", "''", $_POST['desc2']);
+$sql = mysql_query("INSERT INTO db_qc.tbl_exim_detail (
+		id_list, 
+		no_order, 
+		no_po, 
+		no_item, 
+		deskripsi, 
+		deskripsi2, 
+		warna, 
+		unit_price, 
+		price_by, 
+		tgl_update
+	)
+	VALUES (
+		'$_POST[id]', 
+		'$_POST[dono]', 
+		'$po', 
+		'$_POST[item]', 
+		'$desc1', 
+		'$desc2', 
+		'$_POST[warna]', 
+		'$_POST[unit]', 
+		'$_POST[price_by]', 
+		GETDATE()
+	)");
 
 if ($sql) {
     $json_data = array(

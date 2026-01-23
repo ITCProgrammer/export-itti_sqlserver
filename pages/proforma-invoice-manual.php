@@ -98,14 +98,15 @@ ini_set("error_reporting", 1);
               while ($r = sqlsrv_fetch_array($sql, SQLSRV_FETCH_ASSOC)) {
                 $no++;
                 $bgcolor = ($col++ & 1) ? 'gainsboro' : 'antiquewhite';
-                $qAct = sqlsrv_query($con, "SELECT sum(kg) as kg FROM db_qc.tbl_exim_cim_detail WHERE no_pi='" . $r['no_pi'] . "'");
+                $qAct = sqlsrv_query($con, "SELECT SUM(kg) as kg FROM db_qc.tbl_exim_cim_detail WHERE no_pi='" . $r['no_pi'] . "'");
                 if ($qAct === false) {
                   die(print_r(sqlsrv_errors(), true));
                 }
                 $dAct = sqlsrv_fetch_array($qAct, SQLSRV_FETCH_ASSOC);
-                $qAct1 = sqlsrv_query($con, "SELECT sum(kg) as kg FROM db_qc.tbl_exim_pim_detail a
-					INNER JOIN db_qc.tbl_exim_pim b ON a.id_pi=b.id
-					WHERE a.id_pi='" . $r['id'] . "' ORDER BY a.status ASC");
+                $qAct1 = sqlsrv_query($con, "SELECT SUM(a.kg) AS kg 
+                FROM db_qc.tbl_exim_pim_detail a
+                INNER JOIN db_qc.tbl_exim_pim b ON a.id_pi = b.id
+                WHERE a.id_pi = '" . $r['id'] . "'");
                 if ($qAct1 === false) {
                   die(print_r(sqlsrv_errors(), true));
                 }
@@ -114,7 +115,7 @@ ini_set("error_reporting", 1);
                 <tr bgcolor="<?php echo $bgcolor; ?>">
                   <td align="center"><?php echo $no; ?></td>
                   <td align="center"><?php echo $r['status']; ?></td>
-                  <td align="center"><?php echo $r['delivery']; ?></td>
+                  <td align="center"><?php echo $r['delivery'] ? $r['delivery']->format('Y-m-d') : null; ?></td>
                   <td align="center"><?php echo $r['consignee']; ?></td>
                   <td align="center"><?php echo $r['destination']; ?></td>
                   <td align="center"><?php echo $r['incoterm']; ?></td>

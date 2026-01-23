@@ -31,15 +31,15 @@ $listno = $_GET["listno"];
             </thead>
             <tbody>
                 <?php
-                $sql = mysql_query(" SELECT a.id,a.sisa,a.pack,a.weight,a.yard_,a.no_roll,b.ukuran,b.netto,
-                                    c.no_item,c.warna,c.no_lot from detail_pergerakan_stok a
-                                    INNER JOIN tmp_detail_kite b ON a.id_detail_kj=b.id
-                                    INNER JOIN tbl_kite c ON b.id_kite=c.id 
+                $sql = sqlsrv_query($con, " SELECT a.id,a.sisa,a.pack,a.weight,a.yard_,a.no_roll,b.ukuran,b.netto,
+                                    c.no_item,c.warna,c.no_lot from db_qc.detail_pergerakan_stok a
+                                    INNER JOIN db_qc.tmp_detail_kite b ON a.id_detail_kj=b.id
+                                    INNER JOIN db_qc.tbl_kite c ON b.id_kite=c.id 
                                     WHERE a.lott='$id' AND a.refno='$listno' ORDER BY a.no_roll ASC,c.no_lot ASC");
                 $no = 1;
                 $n = 1;
                 $c = 0;
-                while ($r = mysql_fetch_array($sql)) {
+                while ($r = sqlsrv_fetch_array($sql)) {
                     $bgcolor = ($c++ & 1) ? '#33CCFF' : '#FFCC99';
                 ?>
                     <tr bgcolor="<?php echo $bgcolor; ?>">

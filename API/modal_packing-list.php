@@ -24,12 +24,12 @@ include '../koneksi.php';
                             <label for="" class="col-lg-2 control-label input-xs">No. PO ▶</label>
                             <div class="col-lg-6 input-group">
                                 <select class="form-control input-xs" type="text" name="nopo_list" id="nopo_list">
-                                    <?php $sqlnopo = mysql_query("SELECT id,no_item,trim(no_po) as no_po,nokk
-                                                                 FROM `tbl_kite`
-                                                                 WHERE `tbl_kite`.`no_order` = '$_GET[dono]' 
-                                                                 GROUP BY no_po
-                                                                 ORDER BY no_po ASC"); ?>
-                                    <?php while ($rp = mysql_fetch_array($sqlnopo)) { ?>
+                                    <?php $sqlnopo =sqlsrv_query($con, "SELECT DISTINCT 
+                                                        TRIM(no_po) AS no_po
+                                                    FROM db_qc.tbl_kite
+                                                    WHERE no_order = '$_GET[dono]'
+                                                    ORDER BY no_po ASC;"); ?>
+                                    <?php while ($rp =sqlsrv_fetch_array($sqlnopo, SQLSRV_FETCH_ASSOC)) { ?>
                                         <option value="<?php echo urlencode($rp['no_po']); ?>" <?php if ($_GET['nopo'] == $rp['no_po']) {
                                                                                                     echo "SELECTED";
                                                                                                 } ?>><?php echo str_replace("'", "''", $rp['no_po']); ?>
@@ -43,11 +43,12 @@ include '../koneksi.php';
                             <div class="col-lg-6 input-group">
                                 <select class="form-control input-xs" type="text" name="noitem_list" id="noitem_list">
                                     <option value=""></option>
-                                    <?php $sqlnoitem = mysql_query("SELECT trim(no_item) as no_item
-                                                            FROM `tbl_kite`
-                                                            WHERE `tbl_kite`.`no_order` = '$_GET[dono]' AND `tbl_kite`.`no_po` = '$_GET[nopo]'
-                                                            GROUP BY no_item ");
-                                    while ($rp = mysql_fetch_array($sqlnoitem)) { ?>
+                                    <?php $sqlnoitem =sqlsrv_query($con, "SELECT TRIM(no_item) AS no_item
+                                                        FROM db_qc.tbl_kite
+                                                        WHERE no_order = '$_GET[dono]' 
+                                                        AND no_po = '$_GET[nopo]'
+                                                        GROUP BY no_item ");
+                                    while ($rp =sqlsrv_fetch_array($sqlnoitem, SQLSRV_FETCH_ASSOC)) { ?>
                                         <option value="<?php echo str_replace("'", "''", $rp['no_item']); ?>" <?php if ($rp['no_item'] == $_GET['noitem']) {
                                                                                                                     echo "SELECTED";
                                                                                                                 } ?>><?php echo str_replace("'", "''", $rp['no_item']); ?></option>
@@ -60,11 +61,11 @@ include '../koneksi.php';
                             <div class="col-lg-6 input-group">
                                 <select class="form-control input-xs" type="text" name="warna_list" id="warna_list">
                                     <option value=""></option>
-                                    <?php $sqlwarna = mysql_query("SELECT trim(warna) as warna
-                                                            FROM `tbl_kite`
-                                                            WHERE `tbl_kite`.`no_order` = '$_GET[dono]' AND `tbl_kite`.`no_po` = '$_GET[nopo]' AND  `tbl_kite`.`no_item` = '$_GET[noitem]'
+                                    <?php $sqlwarna =sqlsrv_query($con, "SELECT TRIM(warna) as warna
+                                                            FROM db_qc.tbl_kite
+                                                            WHERE db_qc.tbl_kite.no_order = '$_GET[dono]' AND tbl_kite.no_po = '$_GET[nopo]' AND  tbl_kite.no_item = '$_GET[noitem]'
                                                             GROUP BY warna ");
-                                    while ($rp = mysql_fetch_array($sqlwarna)) { ?>
+                                    while ($rp =sqlsrv_fetch_array($sqlwarna, SQLSRV_FETCH_ASSOC)) { ?>
                                         <option value="<?php echo str_replace("'", "''", $rp['warna']); ?>" <?php if ($rp['warna'] == $_GET['warna']) {
                                                                                                                 echo "SELECTED";
                                                                                                             } ?>><?php echo str_replace("'", "''", $rp['warna']); ?></option>
@@ -79,13 +80,14 @@ include '../koneksi.php';
                             <div class="col-lg-6 input-group">
                                 <select class="form-control input-xs" type="text" name="lot_list" id="lot_list">
                                     <option selected value=""></option>
-                                    <?php $sqllot = mysql_query("SELECT trim(no_lot) as no_lot FROM `tbl_kite`
-                                                                    WHERE `tbl_kite`.`no_order` = '$_GET[dono]' 
-                                                                    AND   `tbl_kite`.`no_po` = '$_GET[nopo]' 
-                                                                    AND  `tbl_kite`.`no_item` = '$_GET[noitem]' 
-                                                                    AND  `tbl_kite`.`warna` = '$_GET[warna]'
-                                                                    GROUP BY no_lot ");
-                                    while ($rp = mysql_fetch_array($sqllot)) { ?>
+                                    <?php $sqllot =sqlsrv_query($con, "SELECT LTRIM(RTRIM(no_lot)) AS no_lot 
+                                                    FROM db_qc.tbl_kite
+                                                    WHERE no_order = '$_GET[dono]' 
+                                                    AND no_po = '$_GET[nopo]' 
+                                                    AND no_item = '$_GET[noitem]' 
+                                                    AND warna = '$_GET[warna]'
+                                                    GROUP BY no_lot ");
+                                    while ($rp =sqlsrv_fetch_array($sqllot, SQLSRV_FETCH_ASSOC)) { ?>
                                         <option value="<?php echo str_replace("'", "''", $rp['no_lot']); ?>" <?php if ($rp['no_lot'] == $_GET['lot']) {
                                                                                                                     echo "SELECTED";
                                                                                                                 } ?>><?php echo str_replace("'", "''", $rp['no_lot']); ?></option>
@@ -148,62 +150,74 @@ include '../koneksi.php';
                                 $cwhere2 .= "null";
                             }
                             if ($_GET['nopo'] != '') {
-                                $cwhere1 .= " AND `tbl_kite`.`no_po`='$_GET[nopo]'";
+                                $cwhere1 .= " AND tbl_kite.no_po='$_GET[nopo]'";
                             } else {
                                 $cwhere1 .= " ";
                             }
                             if ($_GET['noitem'] != '') {
-                                $cwhere10 .= " AND `tbl_kite`.`no_item`='$_GET[noitem]'";
+                                $cwhere10 .= " AND tbl_kite.no_item='$_GET[noitem]'";
                             } else {
                                 $cwhere10 .= " ";
                             }
                             if ($_GET['warna'] != '') {
-                                $cwhere11 .= " AND `tbl_kite`.`warna`='$_GET[warna]'";
+                                $cwhere11 .= " AND tbl_kite.warna='$_GET[warna]'";
                             } else {
                                 $cwhere11 .= " ";
                             }
 
-                            $datasum = mysql_query("SELECT
-	tbl_kite.no_lot,
-	tbl_kite.nokk,
-	sum(if( not detail_pergerakan_stok.sisa='FOC',detail_pergerakan_stok.weight,0)) as kgs,
-	sum(if( not detail_pergerakan_stok.sisa='FOC',detail_pergerakan_stok.yard_,0)) as yds,
-	sum(tmp_detail_kite.netto)as pcs,
-	detail_pergerakan_stok.pack,
-	count(detail_pergerakan_stok.weight) as jml_pack,
-	sum(if(detail_pergerakan_stok.sisa='FOC',detail_pergerakan_stok.weight,0)) as foc
-FROM
-	pergerakan_stok
-INNER JOIN detail_pergerakan_stok ON pergerakan_stok.id = detail_pergerakan_stok.id_stok
-INNER JOIN tmp_detail_kite ON tmp_detail_kite.id = detail_pergerakan_stok.id_detail_kj
-INNER JOIN tbl_kite ON tbl_kite.id = tmp_detail_kite.id_kite
-WHERE
-	(detail_pergerakan_stok.sisa !='FKTH' AND detail_pergerakan_stok.sisa !='TH' AND detail_pergerakan_stok.sisa !='SISA' AND typestatus='1'
-AND `tbl_kite`.`no_order`='" . $cwhere2 . "'
- )" . $cwhere1 . $cwhere10 . $cwhere11 . $cwhere12 . " GROUP BY tbl_kite.no_lot  
- ORDER BY `pergerakan_stok`.`typestatus`,
-	`detail_pergerakan_stok`.`nokk`,
-	`detail_pergerakan_stok`.`no_roll` ASC");
+                            $datasum =sqlsrv_query($con, "SELECT
+                                tbl_kite.no_lot,
+                                MAX(tbl_kite.nokk) AS nokk, -- Harus diagregasi atau masuk GROUP BY
+                                SUM(CASE WHEN detail_pergerakan_stok.sisa <> 'FOC' THEN detail_pergerakan_stok.weight ELSE 0 END) AS kgs,
+                                SUM(CASE WHEN detail_pergerakan_stok.sisa <> 'FOC' THEN detail_pergerakan_stok.yard_ ELSE 0 END) AS yds,
+                                SUM(tmp_detail_kite.netto) AS pcs,
+                                MAX(detail_pergerakan_stok.pack) AS pack, -- Harus diagregasi atau masuk GROUP BY
+                                COUNT(detail_pergerakan_stok.weight) AS jml_pack,
+                                SUM(CASE WHEN detail_pergerakan_stok.sisa = 'FOC' THEN detail_pergerakan_stok.weight ELSE 0 END) AS foc
+                            FROM
+                                db_qc.pergerakan_stok
+                            INNER JOIN db_qc.detail_pergerakan_stok ON pergerakan_stok.id = detail_pergerakan_stok.id_stok
+                            INNER JOIN db_qc.tmp_detail_kite ON tmp_detail_kite.id = detail_pergerakan_stok.id_detail_kj
+                            INNER JOIN db_qc.tbl_kite ON tbl_kite.id = tmp_detail_kite.id_kite
+                            WHERE
+                                detail_pergerakan_stok.sisa NOT IN ('FKTH', 'TH', 'SISA') 
+                                AND pergerakan_stok.typestatus = '1'
+                                AND tbl_kite.no_order = '" . $cwhere2 . "'
+                                " . $cwhere1 . $cwhere10 . $cwhere11 . $cwhere12 . "
+                            GROUP BY 
+                                tbl_kite.no_lot
+                            ORDER BY 
+                                MAX(pergerakan_stok.typestatus), 
+                                MAX(detail_pergerakan_stok.nokk), 
+                                MAX(detail_pergerakan_stok.no_roll) ASC;");
 
-                            while ($rdata = mysql_fetch_array($datasum)) {
-                                $mySql = mysql_query("SELECT tempat,catatan FROM mutasi_kain WHERE nokk='$rdata[nokk]' AND not tempat='' order by id desc");
-                                $myBlk = mysql_fetch_array($mySql);
-                                $mySql1 = mysql_query("SELECT
-	a.blok,
-	b.sisa,b.nokk
-	FROM
-	pergerakan_stok a
-	INNER JOIN detail_pergerakan_stok b ON a.id = b.id_stok
-  
-	WHERE
-	(a.typestatus = '1' OR a.typestatus = '2')
-	AND not ISNULL(b.transtatus) AND (b.transtatus='1' OR b.transtatus='0') 
-	AND b.nokk='$rdata[nokk]'
-	GROUP BY
-	b.nokk,b.sisa
-	ORDER BY
-	a.tgl_update,a.id");
-                                $myBlk1 = mysql_fetch_array($mySql1);
+                            while ($rdata =sqlsrv_fetch_array($datasum, SQLSRV_FETCH_ASSOC)) {
+                                $mySql =sqlsrv_query($con, "SELECT tempat, catatan 
+                                        FROM mutasi_kain 
+                                        WHERE nokk = '$rdata[nokk]' 
+                                        AND tempat <> '' 
+                                        AND tempat IS NOT NULL 
+                                        ORDER BY id DESC;");
+                                $myBlk =sqlsrv_fetch_array($mySql, SQLSRV_FETCH_ASSOC);
+                                $mySql1 =sqlsrv_query($con, "SELECT
+                                    MAX(a.blok) AS blok, 
+                                    b.sisa,
+                                    b.nokk
+                                FROM
+                                    db_qc.pergerakan_stok a
+                                INNER JOIN db_qc.detail_pergerakan_stok b ON a.id = b.id_stok
+                                WHERE
+                                    a.typestatus IN ('1', '2')
+                                    AND b.transtatus IS NOT NULL 
+                                    AND b.transtatus IN ('1', '0') 
+                                    AND b.nokk = '$rdata[nokk]'
+                                GROUP BY
+                                    b.nokk, 
+                                    b.sisa
+                                ORDER BY
+                                    MAX(a.tgl_update), 
+                                    MAX(a.id); ");
+                                $myBlk1 =sqlsrv_fetch_array($mySql1, SQLSRV_FETCH_ASSOC);
                             ?>
                                 <tr align="center">
                                     <td><?php
@@ -267,28 +281,34 @@ AND `tbl_kite`.`no_order`='" . $cwhere2 . "'
                         <tbody>
                             <?php
 
-                            $datacek = mysql_query("SELECT *, detail_pergerakan_stok.id AS kd
-                                                FROM pergerakan_stok
-                                                INNER JOIN detail_pergerakan_stok ON pergerakan_stok.id = detail_pergerakan_stok.id_stok
-                                                INNER JOIN tmp_detail_kite ON tmp_detail_kite.id = detail_pergerakan_stok.id_detail_kj
-                                                INNER JOIN tbl_kite ON tbl_kite.id = tmp_detail_kite.id_kite
-                                                WHERE (
-                                                    detail_pergerakan_stok.sisa !='FKTH' 
-                                                    AND detail_pergerakan_stok.sisa !='TH' 
-                                                    AND detail_pergerakan_stok.sisa !='SISA' 
-                                                    AND typestatus='1'
-                                                    AND `tbl_kite`.`no_order`='" . $cwhere2 . "'
-                                                    )"
-                                . $cwhere1 . $cwhere10 . $cwhere11 . $cwhere12 . " 
-                                                    GROUP BY tmp_detail_kite.id  
-                                                    ORDER BY `pergerakan_stok`.`typestatus`, `detail_pergerakan_stok`.`nokk`, `detail_pergerakan_stok`.`no_roll` ASC");
+                            $datacek =sqlsrv_query($con, "SELECT 
+                                tmp_detail_kite.id, -- Kolom yang di-group
+                                MIN(detail_pergerakan_stok.id) AS kd, -- Alias 'kd' menggunakan agregat agar valid
+                                MAX(pergerakan_stok.typestatus) AS typestatus,
+                                MAX(detail_pergerakan_stok.nokk) AS nokk,
+                                MAX(detail_pergerakan_stok.no_roll) AS no_roll
+                            FROM db_qc.pergerakan_stok
+                            INNER JOIN db_qc.detail_pergerakan_stok ON pergerakan_stok.id = detail_pergerakan_stok.id_stok
+                            INNER JOIN db_qc.tmp_detail_kite ON tmp_detail_kite.id = detail_pergerakan_stok.id_detail_kj
+                            INNER JOIN db_qc.tbl_kite ON tbl_kite.id = tmp_detail_kite.id_kite
+                            WHERE 
+                                detail_pergerakan_stok.sisa NOT IN ('FKTH', 'TH', 'SISA') 
+                                AND pergerakan_stok.typestatus = '1'
+                                AND tbl_kite.no_order = '" . $cwhere2 . "'
+                                " . $cwhere1 . $cwhere10 . $cwhere11 . $cwhere12 . " 
+                            GROUP BY 
+                                tmp_detail_kite.id
+                            ORDER BY 
+                                MAX(pergerakan_stok.typestatus), 
+                                MAX(detail_pergerakan_stok.nokk), 
+                                MAX(detail_pergerakan_stok.no_roll) ASC ");
                             $no = 1;
                             $n = 1;
                             $c = 0;
-                            while ($rowd = mysql_fetch_array($datacek)) {
-                                $cek = mysql_query("select * from detail_pergerakan_stok 
+                            while ($rowd =sqlsrv_fetch_array($datacek, SQLSRV_FETCH_ASSOC)) {
+                                $cek =sqlsrv_query($con, "select * from db_qc.detail_pergerakan_stok 
 		                                                 where id='$rowd[kd]' and refno!=''");
-                                $crow = mysql_fetch_array($cek);
+                                $crow =sqlsrv_fetch_array($cek, SQLSRV_FETCH_ASSOC);
                                 if ($_SESSION['password'] == 'user') {
                                     $crow = 0;
                                 }

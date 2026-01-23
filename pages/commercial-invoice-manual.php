@@ -105,7 +105,7 @@ include "koneksi.php";
                     <font size="-1"><?php echo $r['no_bl']; ?></font>
                   </td>
                   <td align="center">
-                    <font size="-1"><?php echo $r['etd']; ?></font>
+                    <font size="-1"><?php echo $r['etd'] ? $r['etd']->format('Y-m-d') : null; ?></font>
                   </td>
                   <td align="center">
                     <font size="-1">

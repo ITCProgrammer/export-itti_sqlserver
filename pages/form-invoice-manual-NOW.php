@@ -49,7 +49,7 @@ $rdb2 = db2_fetch_assoc($stmt1);
 ?>
 <?php
    
-$sqlCek=sqlsrv_query($con,"SELECT * FROM tbl_exim_pim WHERE no_pi='".$_GET['pi']."' LIMIT 1");
+$sqlCek=sqlsrv_query($con,"SELECT TOP 1 * FROM db_qc.tbl_exim_pim WHERE no_pi='".$_GET['pi']."' ");
 $cek=sqlsrv_num_rows($sqlCek);
 $r=sqlsrv_fetch_array($sqlCek);
 ?>
@@ -266,7 +266,7 @@ $stmt2=db2_exec($conn1,$sql2DB2, array('cursor'=>DB2_SCROLLABLE));
 					while($r=db2_fetch_assoc($stmt2)){
 					$bgcolor = ($c++ & 1) ? '#33CCFF' : '#FFCC99';
 					if($r['NOITEM']==""){$itmm=$r['HANGERNO'];}else{$itmm=$r['NOITEM'];}
-					$sqlHS=sqlsrv_query($con,"SELECT hs_code FROM tbl_exim_code WHERE no_item='".$itmm."' LIMIT 1");
+					$sqlHS=sqlsrv_query($con,"SELECT TOP 1 hs_code FROM db_qc.tbl_exim_code WHERE no_item='".$itmm."' ");
 					$rHS=sqlsrv_fetch_array($sqlHS);
 					?>
 						<tr bgcolor="<?php echo $bgcolor; ?>">
@@ -388,7 +388,7 @@ $stmt24=db2_exec($conn1,$sql2DB24, array('cursor'=>DB2_SCROLLABLE));
 <?php 
 
 if (isset($_POST['save'])) {
-        $qry1=sqlsrv_query($con,"INSERT INTO tbl_exim_pim SET
+        $qry1=sqlsrv_query($con,"INSERT INTO db_qc.tbl_exim_pim SET
 		no_pi='".$_POST['no_pi']."',
 		bon_order='".$_POST['bon_order']."',
 		buyer='".$_POST['buyer']."',
@@ -403,7 +403,7 @@ if (isset($_POST['save'])) {
 		tgl_terima='".$_POST['tgl_terima']."',
 		tgl_update=now()
 		");
-		$cekPI=sqlsrv_query($con,"SELECT id FROM tbl_exim_pim WHERE no_pi='".$_POST['no_pi']."' ORDER BY id DESC ");
+		$cekPI=sqlsrv_query($con,"SELECT id FROM db_qc.tbl_exim_pim WHERE no_pi='".$_POST['no_pi']."' ORDER BY id DESC ");
 		$rcekPI=sqlsrv_fetch_array($cekPI);		
 		$po="";
 		$per="";

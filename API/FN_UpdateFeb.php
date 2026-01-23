@@ -10,13 +10,13 @@ if (isset($_POST['save']) == 'save') {
     $no_cont = str_replace("'", "''", $_POST['no_container']);
     $wh = $_POST['werehouse'];
 
-    sqlsrv_query($con,"UPDATE tbl_exim SET
-	`no_peb`='$peb',
-	`tgl_peb`='$tglpeb',
-	`npe`='$npe',
-	`no_sj`='$sj',
-	`tgl_sj`='$tglsj',
-	`no_cont`='$no_cont'
+    sqlsrv_query($con,"UPDATE db_qc.tbl_exim SET
+	no_peb='$peb',
+	tgl_peb='$tglpeb',
+	npe='$npe',
+	no_sj='$sj',
+	tgl_sj='$tglsj',
+	no_cont='$no_cont'
 	WHERE listno='".$_POST['no']."'");
 
     $json_data = array(

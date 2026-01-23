@@ -7,12 +7,12 @@ if (isset($_POST['save']) == 'SAVE') {
     $awb = str_replace("'", "''", $_POST['no_awb']);
     $tglawb = $_POST['tgl_awb'];
     $tglmkt = $_POST['tgl_mkt'];
-    $qry = sqlsrv_query($con,"UPDATE tbl_exim SET
-	`no_awb`='$awb',
-	`tgl_awb`='$tglawb',
-	`tgl_mkt`='$tglmkt',
-	`tgl_khusus`='$tglkhusus',
-	`ket_awb`='$ket'
+    $qry = sqlsrv_query($con,"UPDATE db_qc.tbl_exim SET
+	no_awb='$awb',
+	tgl_awb='$tglawb',
+	tgl_mkt='$tglmkt',
+	tgl_khusus='$tglkhusus',
+	ket_awb='$ket'
 	WHERE listno='".$_POST['listno']."'
 	");
 

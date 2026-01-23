@@ -371,7 +371,7 @@ include "../koneksi.php";
             <th width="28">KGS</th>
             <th width="27">YDS</th>
         </tr>
-        <?PHP $sql1 = sqlsrv_query(" SELECT b.* FROM db_qc.tbl_exim a
+        <?PHP $sql1 = sqlsrv_query($con, " SELECT b.* FROM db_qc.tbl_exim a
 INNER JOIN db_qc.tbl_exim_detail b ON a.id=b.id_list
 WHERE a.listno='$_GET[listno]'
 GROUP BY b.no_po,b.no_item ORDER BY id ASC ");
@@ -380,7 +380,7 @@ GROUP BY b.no_po,b.no_item ORDER BY id ASC ");
         $yds = 0;
         $pcs = 0;
         $amount = 0;
-        while ($r1 = sqlsrv_fetch_array($sql1)) {
+        while ($r1 = sqlsrv_fetch_array($sql1, SQLSRV_FETCH_ASSOC)) {
 
         ?>
             <tr>

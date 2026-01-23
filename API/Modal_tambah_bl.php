@@ -2,7 +2,7 @@
 session_start();
 include '../koneksi.php';
 ini_set("error_reporting",1);
-$sqlcek = sqlsrv_query($con,"SELECT * FROM tbl_exim WHERE listno='".$_GET['listno']."' LIMIT 1");
+$sqlcek = sqlsrv_query($con, "SELECT TOP 1 * FROM db_qc.tbl_exim WHERE listno='".$_GET['listno']."' ");
 $rcek = sqlsrv_fetch_array($sqlcek);
 ?>
 <div class="modal-content">

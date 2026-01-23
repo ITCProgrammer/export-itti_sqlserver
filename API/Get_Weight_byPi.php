@@ -2,7 +2,7 @@
 session_start();
 include '../koneksi.php';
 
-$sqlpi1 = sqlsrv_query($con,"SELECT * FROM tbl_exim_pi_detail WHERE id='".$_POST['pi']."' ");
+$sqlpi1 = sqlsrv_query($con,"SELECT * FROM db_qc.tbl_exim_pi_detail WHERE id='".$_POST['pi']."' ");
 $rpi1 = sqlsrv_fetch_array($sqlpi1);
 $count = sqlsrv_num_rows($sqlpi1);
 

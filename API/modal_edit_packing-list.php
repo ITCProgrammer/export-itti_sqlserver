@@ -3,8 +3,8 @@ session_start();
 include '../koneksi.php';
 $id = $_GET["id"];
 $listno = $_GET["listno"];
-$sqldt = mysql_query("SELECT * FROM tbl_exim_detail WHERE id='$_GET[id]' LIMIT 1");
-$row = mysql_fetch_array($sqldt);
+$sqldt = sqlsrv_query($con, "SELECT TOP 1 * FROM db_qc.tbl_exim_detail WHERE id='$_GET[id]' ");
+$row = sqlsrv_fetch_array($sqldt, SQLSRV_FETCH_ASSOC);
 ?>
 <div class="modal-content">
     <form method="post" enctype="multipart/form-data" name="form1" class="form-horizontal" id="form" style="border-bottom: solid #ddd 1px;">

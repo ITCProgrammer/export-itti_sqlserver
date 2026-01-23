@@ -1,7 +1,7 @@
 <?php
 session_start();
 include '../koneksi.php';
-$sqldt = sqlsrv_query($con,"SELECT * FROM tbl_exim_sa WHERE no_sa='".$_GET['id']."'");
+$sqldt = sqlsrv_query($con, "SELECT * FROM db_qc.tbl_exim_sa WHERE no_sa='".$_GET['id']."'");
 $data = sqlsrv_fetch_array($sqldt);
 ?>
 <div class="modal-content">
