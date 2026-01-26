@@ -49,9 +49,17 @@ $rdb2 = db2_fetch_assoc($stmt1);
 ?>
 <?php
    
-$sqlCek=sqlsrv_query($con,"SELECT TOP 1 * FROM db_qc.tbl_exim_pim WHERE no_pi='".$_GET['pi']."' ");
-$cek=sqlsrv_num_rows($sqlCek);
-$r=sqlsrv_fetch_array($sqlCek);
+$sqlCek = sqlsrv_query(
+	$con,
+	"SELECT TOP 1 * FROM db_qc.tbl_exim_pim WHERE no_pi = ?",
+	[$_GET['pi']],
+	["Scrollable" => SQLSRV_CURSOR_KEYSET]
+);
+$cek = ($sqlCek === false) ? 0 : sqlsrv_num_rows($sqlCek);
+$r   = ($sqlCek && $cek > 0) ? sqlsrv_fetch_array($sqlCek, SQLSRV_FETCH_ASSOC) : [];
+// normalize dates for form display
+$tglTerimaVal = (!empty($r['tgl_terima']) && $r['tgl_terima'] instanceof DateTimeInterface) ? $r['tgl_terima']->format('Y-m-d') : '';
+$tglDelivVal  = (!empty($rdb2['TGLDELIVERY']) && !is_object($rdb2['TGLDELIVERY'])) ? $rdb2['TGLDELIVERY'] : '';
 ?>
 
 <div class="box box-info">
@@ -76,14 +84,14 @@ $r=sqlsrv_fetch_array($sqlCek);
 				<div class="col-sm-4">
 					<div class="input-group date">
 						<div class="input-group-addon"> <i class="fa fa-calendar"></i> </div>
-						<input name="tgl_terima" type="text" required class="form-control pull-right" id="datepicker" placeholder="0000-00-00" autocomplete="off" value="<?php if($cek>0){ echo $r['tgl_terima'];}?>"/>
+						<input name="tgl_terima" type="text" required class="form-control pull-right" id="datepicker" placeholder="0000-00-00" autocomplete="off" value="<?php echo $tglTerimaVal; ?>"/>
 					</div>
 				</div>
 			</div>
 			<div class="form-group">
 				<label for="author" class="col-sm-3 control-label">Author</label>
 				<div class="col-sm-3">
-					<input name="author" type="text" class="form-control" id="author" value="<?php if($row['author']!=""){echo strtoupper($row['author']);}else{echo strtoupper($_SESSION['usernmEX']);}?>" placeholder="Author">
+					<input name="author" type="text" class="form-control" id="author" value="<?php echo (!empty($r['author']) ? strtoupper($r['author']) : strtoupper($_SESSION['usernmEX']));?>" placeholder="Author">
 				</div>
 			</div>
 			<div class="form-group">
@@ -141,7 +149,7 @@ $r=sqlsrv_fetch_array($sqlCek);
 				<div class="col-sm-4">
 					<div class="input-group date">
 						<div class="input-group-addon"> <i class="fa fa-calendar"></i> </div>
-						<input type="text" name="tgl_delivery" class="form-control pull-right" id="datepicker1" placeholder="0000-00-00" value="<?php echo $rdb2['TGLDELIVERY']; ?>" autocomplete="off"/>
+						<input type="text" name="tgl_delivery" class="form-control pull-right" id="datepicker1" placeholder="0000-00-00" value="<?php echo $tglDelivVal; ?>" autocomplete="off"/>
 					</div>
 				</div>
 			</div>	
@@ -388,51 +396,65 @@ $stmt24=db2_exec($conn1,$sql2DB24, array('cursor'=>DB2_SCROLLABLE));
 <?php 
 
 if (isset($_POST['save'])) {
-        $qry1=sqlsrv_query($con,"INSERT INTO db_qc.tbl_exim_pim SET
-		no_pi='".$_POST['no_pi']."',
-		bon_order='".$_POST['bon_order']."',
-		buyer='".$_POST['buyer']."',
-		messr='".$_POST['messr']."',
-		consignee='".$_POST['consignee']."',
-		destination='".$_POST['dest']."',
-		payment='".$_POST['payment']."',
-		incoterm='".$_POST['incoterm']."',
-		sales_assistant='".$_POST['sales']."',
-		delivery='".$_POST['tgl_delivery']."',
-		author='".$_POST['author']."',
-		tgl_terima='".$_POST['tgl_terima']."',
-		tgl_update=now()
-		");
-		$cekPI=sqlsrv_query($con,"SELECT id FROM db_qc.tbl_exim_pim WHERE no_pi='".$_POST['no_pi']."' ORDER BY id DESC ");
-		$rcekPI=sqlsrv_fetch_array($cekPI);		
-		$po="";
-		$per="";
-		$kg="0";
-		$yd="0";
-		$pc="0";
-		while($r4=db2_fetch_assoc($stmt24)){
-		if($r['NO_PO2']==""){$po=$r4['NO_PO1'];}else{ $po=$r4['NO_PO2']; }	
-		if($r['NOITEM']==""){$itmNo=$r['HANGERNO'];}else{$itmNo=$r['NOITEM'];}	
-		$sqlHS1=sqlsrv_query($con,"SELECT hs_code FROM tbl_exim_code WHERE no_item='".$itmNo."' LIMIT 1");
-		$rHS1=sqlsrv_fetch_array($sqlHS1);
+	$insertPim = sqlsrv_query(
+		$con,
+		"INSERT INTO db_qc.tbl_exim_pim
+		 (no_pi, bon_order, buyer, messr, consignee, destination, payment, incoterm, sales_assistant, delivery, author, tgl_terima, tgl_update)
+		 VALUES (?,?,?,?,?,?,?,?,?,?,?, ?, GETDATE())",
+		[
+			$_POST['no_pi'],
+			$_POST['bon_order'],
+			$_POST['buyer'],
+			$_POST['messr'],
+			$_POST['consignee'],
+			$_POST['dest'],
+			$_POST['payment'],
+			$_POST['incoterm'],
+			$_POST['sales'],
+			$_POST['tgl_delivery'],
+			$_POST['author'],
+			$_POST['tgl_terima']
+		]
+	);
+	if ($insertPim === false) {
+		die(print_r(sqlsrv_errors(), true));
+	}
+
+	$cekPI = sqlsrv_query($con, "SELECT TOP 1 id FROM db_qc.tbl_exim_pim WHERE no_pi = ? ORDER BY id DESC", [$_POST['no_pi']]);
+	$rcekPI = sqlsrv_fetch_array($cekPI, SQLSRV_FETCH_ASSOC);		
+	$po="";
+	$per="";
+	$kg="0";
+	$yd="0";
+	$pc="0";
+	while($r4=db2_fetch_assoc($stmt24)){
+		if($r4['NO_PO2']==""){$po=$r4['NO_PO1'];}else{ $po=$r4['NO_PO2']; }	
+		if($r4['NOITEM']==""){$itmNo=$r4['HANGERNO'];}else{$itmNo=$r4['NOITEM'];}	
+		$sqlHS1=sqlsrv_query($con,"SELECT TOP 1 hs_code FROM db_qc.tbl_exim_code WHERE no_item = ?", [$itmNo]);
+		$rHS1=sqlsrv_fetch_array($sqlHS1, SQLSRV_FETCH_ASSOC);
 		if($r4['UNITNAME']=="yd"){$per="yd";}elseif($r4['UNITNAME']=="kg"){$per="kg";}elseif($r4['UNITNAME']=="pcs"){$per="pc";}	
 		if($r4['UNITNAME']=="kg"){$kg=$r4['BASEPRIMARYQUANTITY'];}
-		if($r4['UNITNAME']=="yd"){$yd=$r4['BASESECONDARYQUANTITY'];}	
-		$qry1=sqlsrv_query($con,"INSERT INTO tbl_exim_pim_detail SET
-		id_pi='".$rcekPI['id']."',
-		po='$po',
-		item='".$itmNo."',
-		color='".$r4['WARNA']."',
-		hs_code='".$rHS1['hs_code']."',
-		price='".$r4['CURRENCYCODE']."',
-		per='$per',
-		kg='$kg',
-		yd='$yd',
-		pcs='$pc'
-		");
+		if($r4['UNITNAME']=="yd"){$yd=$r4['BASESECONDARYQUANTITY'];}
+		if($r4['UNITNAME']=="pcs"){$pc=$r4['BASEPRIMARYQUANTITY'];}	
+		$qry1=sqlsrv_query($con,"INSERT INTO db_qc.tbl_exim_pim_detail
+			(id_pi, po, item, color, hs_code, price, per, kg, yd, pcs)
+			VALUES (?,?,?,?,?,?,?,?,?,?)",
+			[
+				$rcekPI['id'],
+				$po,
+				$itmNo,
+				$r4['WARNA1'] ?: $r4['WARNA'],
+				$rHS1['hs_code'],
+				$r4['PRICE'],
+				$per,
+				$kg,
+				$yd,
+				$pc
+			]
+		);
 			
 		}
-        if ($qry1) {            
+        if ($insertPim && $qry1) {            
             echo "<script>swal({
   title: 'Data Tersimpan',
   text: 'Klik Ok untuk melanjutkan',
@@ -447,21 +469,34 @@ if (isset($_POST['save'])) {
         }
     }
 if (isset($_POST['edit'])) {
-        $qry1=sqlsrv_query($con,"UPDATE tbl_exim_pim SET
-		bon_order='".$_POST['bon_order']."',
-		buyer='".$_POST['buyer']."',
-		messr='".$_POST['messr']."',
-		consignee='".$_POST['consignee']."',
-		destination='".$_POST['dest']."',
-		payment='".$_POST['payment']."',
-		incoterm='".$_POST['incoterm']."',
-		sales_assistant='".$_POST['sales']."',
-		delivery='".$_POST['tgl_delivery']."',
-		author='".$_POST['author']."',
-		tgl_terima='".$_POST['tgl_terima']."',
-		tgl_update=now()
-		WHERE id='".$_POST['id']."'
-		");
+        $qry1=sqlsrv_query($con,"UPDATE db_qc.tbl_exim_pim SET
+		bon_order = ?,
+		buyer = ?,
+		messr = ?,
+		consignee = ?,
+		destination = ?,
+		payment = ?,
+		incoterm = ?,
+		sales_assistant = ?,
+		delivery = ?,
+		author = ?,
+		tgl_terima = ?,
+		tgl_update = GETDATE()
+		WHERE id = ?",
+		[
+			$_POST['bon_order'],
+			$_POST['buyer'],
+			$_POST['messr'],
+			$_POST['consignee'],
+			$_POST['dest'],
+			$_POST['payment'],
+			$_POST['incoterm'],
+			$_POST['sales'],
+			$_POST['tgl_delivery'],
+			$_POST['author'],
+			$_POST['tgl_terima'],
+			$_POST['id']
+		]);
         if ($qry1) {            
             echo "<script>swal({
   title: 'Data Telah Diubah',

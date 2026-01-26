@@ -45,22 +45,36 @@
 					</thead>
 					<tbody>
 					<?php 
-					$qry3=sqlsrv_query($con,"SELECT TOP 1000
-						a.*, 
-						b.no_pi, 
-						b.bon_order 
-					FROM db_qc.tbl_exim_pim_detail a 
-					INNER JOIN db_qc.tbl_exim_pim b ON a.id_pi = b.id 
-					WHERE a.[status] = 'On Going' 
-					ORDER BY a.[status] ASC");	
-					$no=1;
-					$col=0;	
-					while($r=sqlsrv_fetch_array($qry3, SQLSRV_FETCH_ASSOC)){
-						$bgcolor = ($col++ & 1) ? 'gainsboro' : 'antiquewhite';
-					$qryD=sqlsrv_query($con,"SELECT kg,panjang,pcs,satuan FROM db_qc.tbl_exim_cim_detail WHERE id_pimd='".$r['id']."'");
-					$rD=sqlsrv_fetch_array($qryD, SQLSRV_FETCH_ASSOC);
+						$qry3=sqlsrv_query($con,"SELECT TOP 1000
+							a.*, 
+							b.no_pi, 
+							b.bon_order 
+						FROM db_qc.tbl_exim_pim_detail a 
+						INNER JOIN db_qc.tbl_exim_pim b ON a.id_pi = b.id 
+						WHERE a.[status] = 'On Going' 
+						ORDER BY a.[status] ASC");
+						if ($qry3 === false) {
+							die(print_r(sqlsrv_errors(), true));
+						}	
+						$no=1;
+						$col=0;	
+						while($r=sqlsrv_fetch_array($qry3, SQLSRV_FETCH_ASSOC)){
+							$bgcolor = ($col++ & 1) ? 'gainsboro' : 'antiquewhite';
+						$qryD = sqlsrv_query($con,"SELECT kg,panjang,pcs,satuan FROM db_qc.tbl_exim_cim_detail WHERE id_pimd = ?", [$r['id']]);
+						if ($qryD === false) {
+							die(print_r(sqlsrv_errors(), true));
+						}
+						$rD = sqlsrv_fetch_array($qryD, SQLSRV_FETCH_ASSOC);
 						
-					?>
+						$kgOut   = isset($rD['kg']) ? (float)$rD['kg'] : 0;
+						$ydOut   = isset($rD['panjang']) ? (float)$rD['panjang'] : 0;
+						$pcsOut  = isset($rD['pcs']) ? (float)$rD['pcs'] : 0;
+
+						$kgPlan  = isset($r['kg']) ? (float)$r['kg'] : 0;
+						$ydPlan  = isset($r['yd']) ? (float)$r['yd'] : 0;
+						$pcsPlan = isset($r['pcs']) ? (float)$r['pcs'] : 0;
+						
+						?>
 						<tr bgcolor="<?php echo $bgcolor; ?>">
 						  <td align="center"><?php echo $no;?></td>
 						  <td align="center"><a href="#" class="edit_status1" id="<?php echo $r['id']; ?>"><?php if($r['status']=="On Going"){echo "<span class='label label-success'>".$r['status']."</span>";}else{echo "<span class='label label-danger'>".$r['status']."</span>";} ?></a></td>
@@ -71,22 +85,30 @@
 							<td><div align="center"><?php echo $r['color']; ?></div></td>
 							<td><div align="center"><?php echo $r['size']; ?></div></td>
 							<td><div align="center"><?php echo $r['hs_code']; ?></div></td>
-							<td><div align="right"><?php echo $r['price']; ?></div></td>
+							<td><div align="right"><?php echo number_format((float)$r['price'], 2, ',', '.'); ?></div></td>
 							<td><div align="center"><span class="label <?php if($r['per']=="yd") {echo" label-primary";}else if($r['per']=="kg"){ echo "label-warning";}else{ echo "label-info"; } ?>"><?php echo $r['per']; ?></span></div></td>
-							<td><div align="right"><a href="#" class="detail_datapi" id="<?php echo $r['id']; ?>"><?php if(round($r['kg']-$rD['kg'],2)>0){
-								echo round($r['kg'],2)."<br>(".round($r['kg']-$rD['kg'],2).")";}
-						    else if(round($r['kg']-$rD['kg'],2)<=0 and $r['per']=="kg"){
-								echo round($r['kg'],2)."<br><span class='label label-warning'>".round($r['kg']-$rD['kg'],2)."</span>";}
-						    else{
-								echo round($r['kg'],2)."<br>(".round($r['kg']-$rD['kg'],2).")";} ?></a></div></td>
+							<td><div align="right"><a href="#" class="detail_datapi" id="<?php echo $r['id']; ?>"><?php 
+								$kgBalance = round($kgPlan - $kgOut, 2);
+								if($kgBalance > 0){
+									echo number_format($kgPlan,2,',','.')."<br>(" . number_format($kgBalance,2,',','.') . ")";
+								} else if($kgBalance <= 0 and $r['per']=="kg"){
+									echo number_format($kgPlan,2,',','.')."<br><span class='label label-warning'>".number_format($kgBalance,2,',','.')."</span>";
+								} else {
+									echo number_format($kgPlan,2,',','.')."<br>(" . number_format($kgBalance,2,',','.') . ")";
+								} ?></a></div></td>
 							<td><div align="right"><?php 
-						if(round($r['yd']-$rD['panjang'],2)>0){
-							echo round($r['yd'],2)."<br><font color=green>(".round($r['yd']-$rD['panjang'],2).")</font>";}
-						else if(round($r['yd']-$rD['panjang'],2)<=0 and $r['per']=="yd"){
-							echo round($r['yd'],2)."<br><span class='label label-primary'>".round($r['yd']-$rD['panjang'],2)."</span>";}
-						else{ echo round($r['yd'],2)."<br>(".round($r['yd']-$rD['panjang'],2).")";} 
+						$ydBalance = round($ydPlan - $ydOut, 2);
+						if($ydBalance>0){
+							echo number_format($ydPlan,2,',','.')."<br><font color=green>(" . number_format($ydBalance,2,',','.') . ")</font>";
+						}
+						else if($ydBalance<=0 and $r['per']=="yd"){
+							echo number_format($ydPlan,2,',','.')."<br><span class='label label-primary'>".number_format($ydBalance,2,',','.')."</span>";
+						}
+						else{ echo number_format($ydPlan,2,',','.')."<br>(" . number_format($ydBalance,2,',','.') . ")";} 
 							?></div></td>							
-							<td><div align="right"><?php echo round($r['pcs'],2)."<br><font color=red>(".round($r['pcs']-$rD['pcs'],2).")</font>"; ?></div></td>
+							<td><div align="right"><?php 
+								$pcsBalance = round($pcsPlan - $pcsOut, 2);
+								echo number_format($pcsPlan,2,',','.')."<br><font color=red>(" . number_format($pcsBalance,2,',','.') . ")</font>"; ?></div></td>
 						</tr>
 						<?php
 						$no++;

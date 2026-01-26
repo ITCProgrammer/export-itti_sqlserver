@@ -2,6 +2,9 @@
 session_start();
 include "koneksi.php";
 ini_set("error_reporting", 1);
+
+$no  = 1;
+$col = 0;
 ?>
 
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
@@ -74,7 +77,7 @@ ini_set("error_reporting", 1);
               $query = "SELECT TOP 1000
                   a.id, 
                   a.tgl_terima, a.no_pi, a.bon_order, a.buyer, a.messr, a.consignee, a.destination, a.payment, a.incoterm, a.sales_assistant, a.delivery,
-                  a.author, a.tgl_terima, a.tgl_update,
+                  a.author, a.tgl_update,
                   CASE 
                       WHEN CHARINDEX('Closed', STRING_AGG(CAST(b.status AS VARCHAR(MAX)), ',') WITHIN GROUP (ORDER BY b.status ASC)) > 0 
                       THEN 'Closed' 
@@ -87,7 +90,7 @@ ini_set("error_reporting", 1);
               GROUP BY 
                   a.id, 
                   a.tgl_terima, a.no_pi, a.bon_order, a.buyer, a.messr, a.consignee, a.destination, a.payment, a.incoterm, a.sales_assistant, a.delivery,
-                  a.author, a.tgl_terima, a.tgl_update
+                  a.author, a.tgl_update
               ORDER BY 
                   [status] DESC, 
                   a.tgl_terima ASC";
@@ -96,9 +99,8 @@ ini_set("error_reporting", 1);
                 die(print_r(sqlsrv_errors(), true));
               }
               while ($r = sqlsrv_fetch_array($sql, SQLSRV_FETCH_ASSOC)) {
-                $no++;
                 $bgcolor = ($col++ & 1) ? 'gainsboro' : 'antiquewhite';
-                $qAct = sqlsrv_query($con, "SELECT SUM(kg) as kg FROM db_qc.tbl_exim_cim_detail WHERE no_pi='" . $r['no_pi'] . "'");
+                $qAct = sqlsrv_query($con, "SELECT SUM(kg) as kg FROM db_qc.tbl_exim_cim_detail WHERE no_pi = ?", [$r['no_pi']]);
                 if ($qAct === false) {
                   die(print_r(sqlsrv_errors(), true));
                 }
@@ -106,22 +108,27 @@ ini_set("error_reporting", 1);
                 $qAct1 = sqlsrv_query($con, "SELECT SUM(a.kg) AS kg 
                 FROM db_qc.tbl_exim_pim_detail a
                 INNER JOIN db_qc.tbl_exim_pim b ON a.id_pi = b.id
-                WHERE a.id_pi = '" . $r['id'] . "'");
+                WHERE a.id_pi = ?", [$r['id']]);
                 if ($qAct1 === false) {
                   die(print_r(sqlsrv_errors(), true));
                 }
                 $dAct1 = sqlsrv_fetch_array($qAct1, SQLSRV_FETCH_ASSOC);
+
+                $deliveryDate = ($r['delivery'] instanceof DateTimeInterface) ? $r['delivery']->format('d-m-Y') : '';
+                $kgOrder      = isset($dAct1['kg']) ? (float)$dAct1['kg'] : 0;
+                $kgExport     = isset($dAct['kg']) ? (float)$dAct['kg'] : 0;
+                $kgTotal      = isset($r['kg']) ? (float)$r['kg'] : 0;
               ?>
                 <tr bgcolor="<?php echo $bgcolor; ?>">
                   <td align="center"><?php echo $no; ?></td>
                   <td align="center"><?php echo $r['status']; ?></td>
-                  <td align="center"><?php echo $r['delivery'] ? $r['delivery']->format('Y-m-d') : null; ?></td>
+                  <td align="center"><?php echo $deliveryDate; ?></td>
                   <td align="center"><?php echo $r['consignee']; ?></td>
                   <td align="center"><?php echo $r['destination']; ?></td>
                   <td align="center"><?php echo $r['incoterm']; ?></td>
                   <td align="center"><a href="?p=Detail-PI-Manual&id=<?php echo $r['id'] ?>"><?php echo $r['no_pi']; ?></a></td>
-                  <td align="center"><?php echo $dAct1['kg']; ?><br>(<?php echo $r['kg']; ?>)</td>
-                  <td align="center"><a href="#" class="detail_ci" id="<?php echo $r['no_pi'] ?>"><?php echo round($dAct['kg'], 2); ?></a></td>
+                  <td align="center"><?php echo number_format($kgOrder, 2, ',', '.'); ?><br>(<?php echo number_format($kgTotal, 2, ',', '.'); ?>)</td>
+                  <td align="center"><a href="#" class="detail_ci" id="<?php echo $r['no_pi'] ?>"><?php echo number_format($kgExport, 2, ',', '.'); ?></a></td>
                   <td align="center"><?php echo $r['sales_assistant']; ?></td>
                   <td align="center"><?php echo $r['author']; ?></td>
                   <td align="center">
@@ -134,6 +141,7 @@ ini_set("error_reporting", 1);
                   </td>
                 </tr>
               <?php
+                $no++;
               } ?>
             </tbody>
             <tfoot class="bg-red">
