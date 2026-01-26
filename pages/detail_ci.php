@@ -25,7 +25,7 @@ include("../koneksi.php");
 					</thead>
 					<tbody>
 					<?php 
-					$qry3=sqlsrv_query($con,"SELECT * FROM tbl_exim_cim_detail a 
+					$qry3=sqlsrv_query($con,"SELECT * FROM db_qc.tbl_exim_cim_detail a 
 					WHERE a.no_pi='".$_GET['id']."' ORDER BY a.id ASC");	
 							
 					while($r=sqlsrv_fetch_array($qry3)){
