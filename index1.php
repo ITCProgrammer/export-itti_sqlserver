@@ -295,7 +295,7 @@ desired effect
               <li class="<?php if ($_GET['p'] == "PI-Detail-Manual") {
                             echo "active";
                           } ?>"><a href="?p=PI-Detail-Manual"><i class="fa fa-calendar text-success"></i> <span>Detail PI</span></a></li>
-              <li class="<?php if ($_GET['p'] == "Commercial-Invoice-Manual" or $_GET['p'] == "Form-Detail-CI-Manual" or $_GET['p'] == "Form-Commercial-Manual" or $_GET['p'] == "Form-Tambah-Pengembalian") {
+              <!-- <li class="<?php if ($_GET['p'] == "Commercial-Invoice-Manual" or $_GET['p'] == "Form-Detail-CI-Manual" or $_GET['p'] == "Form-Commercial-Manual" or $_GET['p'] == "Form-Tambah-Pengembalian") {
                             echo "active";
                           } ?>"><a href="?p=Commercial-Invoice-Manual"><i class="fa fa-calendar text-danger"></i> <span>Manual CI</span></a>
               </li>
@@ -303,10 +303,10 @@ desired effect
                             echo "active";
                           } ?>"><a href="?p=Commercial-Invoice"><i class="fa fa-file-pdf-o" aria-hidden="true"></i>
                   <span>Commercial Invoice</span></a>
-              </li>
+              </li> -->
             </ul>
           </li>
-          <li class="treeview <?php if ($_GET['p'] == "PEB-Kite" or $_GET['p'] == "Detail-CI-KITE" or $_GET['p'] == "Konversi" or $_GET['p'] == "Data-BCLKT") {
+          <!-- <li class="treeview <?php if ($_GET['p'] == "PEB-Kite" or $_GET['p'] == "Detail-CI-KITE" or $_GET['p'] == "Konversi" or $_GET['p'] == "Data-BCLKT") {
                                 echo "active";
                               } ?>">
             <a href="#"><i class="fa fa-cubes text-danger"></i> <span>Data KITE</span>
@@ -325,8 +325,8 @@ desired effect
                             echo "active";
                           } ?>"><a href="?p=Konversi"><i class="fa fa-calendar text-yellow"></i> <span>Konversi</span></a></li>
             </ul>
-          </li>
-          <li class="treeview <?php if ($_GET['p'] == "Data-Packing" or $_GET['p'] == "Data-Packing-NOW" or $_GET['p'] == "Data-Pas-Qty" or $_GET['p'] == "Cek-Order" or $_GET['p'] == "Import-Konversi" or $_GET['p'] == "Cek-NoKO") {
+          </li> -->
+          <!-- <li class="treeview <?php if ($_GET['p'] == "Data-Packing" or $_GET['p'] == "Data-Packing-NOW" or $_GET['p'] == "Data-Pas-Qty" or $_GET['p'] == "Cek-Order" or $_GET['p'] == "Import-Konversi" or $_GET['p'] == "Cek-NoKO") {
                                 echo "active";
                               } ?>">
             <a href="#"><i class="fa fa-edit text-warning"></i> <span>Utility</span>
@@ -338,7 +338,7 @@ desired effect
               <li class="<?php if ($_GET['p'] == "Data-Packing") {
                             echo "active";
                           } ?>"><a href="?p=Data-Packing"><i class="fa fa-columns text-blue"></i> <span>Data Packing</span></a></li>
-			  <li class="<?php if ($_GET['p'] == "Data-Packing-NOW") {
+			        <li class="<?php if ($_GET['p'] == "Data-Packing-NOW") {
                             echo "active";
                           } ?>"><a href="?p=Data-Packing-NOW"><i class="fa fa-columns text-green"></i> <span>Data Packing (NOW)</span></a></li>	
               <li class="<?php if ($_GET['p'] == "Data-Pas-Qty") {
@@ -354,8 +354,8 @@ desired effect
                             echo "active";
                           } ?>"><a href="?p=Import-Konversi"><i class="fa fa-columns text-green"></i> <span>Import-Konversi</span></a></li>
             </ul>
-          </li>
-          <li class="treeview <?php if ($_GET['p'] == "Lap-PI-Manual" or $_GET['p'] == "Lap-CI-Manual") {
+          </li> -->
+          <!-- <li class="treeview <?php if ($_GET['p'] == "Lap-PI-Manual" or $_GET['p'] == "Lap-CI-Manual") {
                                 echo "active";
                               } ?>">
             <a href="#"><i class="fa fa-line-chart text-primary"></i> <span>Report</span>
@@ -371,8 +371,8 @@ desired effect
                             echo "active";
                           } ?>"><a href="?p=Lap-CI-Manual"><i class="fa fa-line-chart text-danger"></i> <span>Lap-CI-Manual</span></a></li>
             </ul>
-          </li>
-		 <?php } ?>	
+          </li> -->
+		      <?php } ?>	
           <li class="treeview <?php if ($_GET['p'] == "Buyer" or $_GET['p'] == "Forwarder" or $_GET['p'] == "HS-Code" or $_GET['p'] == "User") {
                                 echo "active";
                               } ?>">
@@ -382,22 +382,22 @@ desired effect
               </span>
             </a>
             <ul class="treeview-menu">
-			  <?php if(strtolower($_SESSION['usernmEX'])!="mkt") { ?>	
+			        <!-- <?php if(strtolower($_SESSION['usernmEX'])!="mkt") { ?>	
               <li class="<?php if ($_GET['p'] == "Buyer") {
                             echo "active";
                           } ?>"><a href="?p=Buyer"><i class="fa fa-columns text-blue"></i> <span>Buyer</span></a></li>
               <li class="<?php if ($_GET['p'] == "Forwarder") {
                             echo "active";
                           } ?>"><a href="?p=Forwarder"><i class="fa fa-columns text-red"></i> <span>Forwarder</span></a></li>
-			  <?php } ?>	
+			        <?php } ?>	 -->
               <li class="<?php if ($_GET['p'] == "HS-Code") {
                             echo "active";
                           } ?>"><a href="?p=HS-Code"><i class="fa fa-columns text-green"></i> <span>HS-Code</span></a></li>
-              <?php if ($_SESSION['levelEX'] == "SPV" or $_SESSION['levelEX'] == "Manager") { ?>
+              <!-- <?php if ($_SESSION['levelEX'] == "SPV" or $_SESSION['levelEX'] == "Manager") { ?>
                 <li class="<?php if ($_GET['p'] == "User") {
                               echo "active";
                             } ?>"><a href="?p=User"><i class="fa fa-columns text-yellow"></i> <span>User</span></a></li>
-              <?php } ?>
+              <?php } ?> -->
             </ul>
           </li>
 
