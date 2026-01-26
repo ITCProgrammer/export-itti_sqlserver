@@ -71,7 +71,7 @@ ini_set("error_reporting", 1);
               // WHERE b.`status`='On Going'
               // GROUP BY a.id
               // ORDER BY if(locate('Closed',group_concat(DISTINCT b.`status` ORDER BY b.`status` ASC))='1','Closed','On Going') DESC, a.tgl_terima ASC");
-              $query = "SELECT 
+              $query = "SELECT TOP 1000
                   a.id, 
                   a.tgl_terima, a.no_pi, a.bon_order, a.buyer, a.messr, a.consignee, a.destination, a.payment, a.incoterm, a.sales_assistant, a.delivery,
                   a.author, a.tgl_terima, a.tgl_update,
