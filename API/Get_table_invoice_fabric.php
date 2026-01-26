@@ -5,8 +5,8 @@ $requestData = $_REQUEST;
 $sqlFid = sqlsrv_query($con,"SELECT TOP 1 id FROM db_qc.tbl_exim WHERE listno = '".$requestData['listno']."' ");
 $dataId = sqlsrv_fetch_array($sqlFid);
 $columns = array(0 => 'no_order', 1 => 'no_po', 2 => 'no_item', 3 => 'style', 4 => 'warna', 5 => 'unit_price', 6 => 'weight', 8 => 'price_by', 9 => 'kgs', 10 => 'yds', 11 => 'pcs', 12 => 'kgs_foc', 13 => 'action');
-$sql = "SELECT TOP " . $requestData['start'] . " * FROM db_qc.tbl_exim_detail WHERE id_list = '".$dataId['id']."' ";
-$query = sqlsrv_query($con,$sql) or die("data_server.php: get dataku");
+$sql = "SELECT * FROM db_qc.tbl_exim_detail WHERE id_list = '".$dataId['id']."' ";
+$query = sqlsrv_query($con, $sql) or die("data_server.php: get dataku");
 $totalData = sqlsrv_num_rows($query);
 $totalFiltered = $totalData;
 if (!empty($requestData['search']['value'])) {
@@ -22,12 +22,13 @@ $query = sqlsrv_query($con,$sql) or die("data_server.php: get dataku1");
 $totalFiltered = sqlsrv_num_rows($query);
 // $sql .= " ORDER BY " . $columns[$requestData['order'][0]['column']] . "  " . $requestData['order'][0]['dir'] . "  LIMIT " . $requestData['start'] . " ," . $requestData['length'] . "   ";
 $sql .= " ORDER BY " . $columns[$requestData['order'][0]['column']] . "  " . $requestData['order'][0]['dir'] . " ";
-// $sql .= "  LIMIT " . $requestData['start'] . " ," . $requestData['length'] . "   ";
-
+$sql .= " OFFSET " . $requestData['start'] . " ROWS ";
+$sql .= " FETCH NEXT " . $requestData['length'] . " ROWS ONLY ";
 $query = sqlsrv_query($con,$sql) or die("data_server.php: get dataku2");
+
 $data = array();
 $no = 1;
-while ($row = sqlsrv_fetch_array($query)) {
+while ($row = sqlsrv_fetch_array($query, SQLSRV_FETCH_ASSOC)) {
     $nestedData = array();
     $sql_KYP = sqlsrv_query($con,"SELECT 
         SUM(CASE WHEN a.sisa = 'FOC' THEN 0 ELSE a.weight END) AS kgs, 
@@ -46,8 +47,8 @@ while ($row = sqlsrv_fetch_array($query)) {
     GROUP BY 
         b.ukuran, 
         c.warna, 
-        c.user_packing;");
-    $row_kyp = sqlsrv_fetch_array($sql_KYP);
+        c.user_packing ");
+    $row_kyp = sqlsrv_fetch_array($sql_KYP, SQLSRV_FETCH_ASSOC);
     if ($row['price_by'] == "KGS") {
         $amount_us =  number_format($row_kyp['kgs'] * $row['unit_price'], 2);
     } else if ($row['price_by'] == "YDS") {
