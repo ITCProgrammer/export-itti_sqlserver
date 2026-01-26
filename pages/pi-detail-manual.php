@@ -57,7 +57,7 @@
 					$col=0;	
 					while($r=sqlsrv_fetch_array($qry3, SQLSRV_FETCH_ASSOC)){
 						$bgcolor = ($col++ & 1) ? 'gainsboro' : 'antiquewhite';
-					$qryD=sqlsrv_query($con,"SELECT kg,panjang,pcs,satuan FROM db_qc.tbl_exim_cim_detail WHERE id_pimd='".$r['id']."'");
+					$qryD=sqlsrv_query($con,"SELECT TOP 1000 kg,panjang,pcs,satuan FROM db_qc.tbl_exim_cim_detail WHERE id_pimd='".$r['id']."'");
 					$rD=sqlsrv_fetch_array($qryD, SQLSRV_FETCH_ASSOC);
 						
 					?>
