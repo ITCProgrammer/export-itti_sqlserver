@@ -17,6 +17,9 @@ if ($_SESSION['levelEX']=="SPV" or $_SESSION['levelEX']=="Staff") {
 <body>
 <?php
    $dataHS=sqlsrv_query($con,"SELECT * FROM db_qc.tbl_exim_code ORDER BY id DESC");
+	if ($dataHS === false) {
+		die(print_r(sqlsrv_errors(), true));
+	}
 	$no=1;
 	$n=1;
 	$c=0;
