@@ -1,8 +1,15 @@
 <?php
 include("../koneksi.php");
-    $modal_id=$_GET['id'];
-	$modal=sqlsrv_query($con,"SELECT * FROM db_qc.tbl_exim_code WHERE id='$modal_id' ");
-while($r=sqlsrv_fetch_array($modal)){
+
+$modal_id = isset($_GET['id']) ? (int) $_GET['id'] : 0;
+$modal    = sqlsrv_query($con, "SELECT * FROM db_qc.tbl_exim_code WHERE id = ?", [$modal_id]);
+if ($modal === false) {
+    die(print_r(sqlsrv_errors(), true));
+}
+$r = sqlsrv_fetch_array($modal, SQLSRV_FETCH_ASSOC);
+if (!$r) {
+    exit; // no record found, return empty to ajax caller
+}
 ?>
           <div class="modal-dialog ">
             <div class="modal-content">
@@ -14,6 +21,13 @@ while($r=sqlsrv_fetch_array($modal)){
               </div>
               <div class="modal-body">
                   <input type="hidden" id="id" name="id" value="<?php echo $r['id'];?>">
+                  <div class="form-group">
+                  <label for="hscode" class="col-md-3 control-label">HS-Code</label>
+                  <div class="col-md-4">
+                  <input type="text" class="form-control" id="hscode" name="hscode" value="<?php echo $r['hs_code']; ?>" required>
+                  <span class="help-block with-errors"></span>
+                  </div>
+                  </div>
                   <div class="form-group">
                   <label for="item" class="col-md-3 control-label">Item</label>
                   <div class="col-md-5">
@@ -48,4 +62,4 @@ while($r=sqlsrv_fetch_array($modal)){
             <!-- /.modal-content -->
   </div>
           <!-- /.modal-dialog -->
-          <?php } ?>
+          <?php ?>
